@@ -45,20 +45,20 @@ function searchPrompt() {
 }
 
 function searchForSeries() {
-  rl.question(colors.cyan("\nEnter a TMDB series ID: "), (tvId) => {
-    if (tvId.toLowerCase() === "m" || tvId.toLowerCase() === "movie") {
+  rl.question(colors.cyan("\nEnter a TMDB series ID: "), (mediaId) => {
+    if (mediaId.toLowerCase() === "m" || mediaId.toLowerCase() === "movie") {
       console.log(`\nYou're now searching for Movies!`.grey);
       searchForMovie();
-    } else if (tvId.toLowerCase() === "s" || tvId.toLowerCase() === "series" || tvId.toLowerCase() === "tv") {
-      console.log(`\nYou're still in Series searching mode.\n`.grey);
+    } else if (mediaId.toLowerCase() === "s" || mediaId.toLowerCase() === "series" || mediaId.toLowerCase() === "tv") {
+      console.log(`\nYou're still in Series searching mode.`.grey);
       searchForSeries();
     } else {
       tmdb.tv
-        .getDetails({ pathParameters: { tv_id: tvId } })
+        .getDetails({ pathParameters: { tv_id: mediaId } })
         .then((response) => {
           const { name, production_countries } = response.data;
 
-          return tmdb.tv.getAlternativeTitles({ pathParameters: { tv_id: tvId } })
+          return tmdb.tv.getAlternativeTitles({ pathParameters: { tv_id: mediaId } })
             .then((response) => {
               const { results } = response.data;
 
@@ -69,28 +69,38 @@ function searchForSeries() {
                 .map((alternateTitles) => alternateTitles.title)
                 .sort();
 
-              const data = [
-                {
-                  title: name,
-                  "tmdb-id": tvId,
-                  ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
-                },
-              ];
+              return tmdb.tv.getExternalIDs({ pathParameters: { tv_id: mediaId } })
+                .then((response) => {
+                  const { tvdb_id, imdb_id } = response.data;
 
-              const yamlOutput = yaml.dump(data, {
-                quotingType: `"`,
-                forceQuotes: true,
-                indent: 2,
-              });
+                  const data = [
+                    {
+                      title: name,
+                      ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
+                    },
+                  ];
 
-              console.log("\n" + yamlOutput.green);
+                  const yamlOutput = yaml.dump(data, {
+                    quotingType: `"`,
+                    forceQuotes: true,
+                    indent: 2,
+                  });
 
-              clipboardy.writeSync(yamlOutput.replace(/^/gm, "  "));
-              console.log(`Results copied to clipboard!`.grey);
+                  const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + mediaId;
+                  const url_TVDB = tvdb_id !== null ? `\n  # https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : '';
+                  const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
 
-              searchForSeries();
+                  const regex = /^(\s*- title:.*)$/m;
+                  const modifiedYamlOutput = yamlOutput.replace(regex, `$1${url_TMDB}${url_TVDB}${url_IMDB}`);
+
+                  console.log(`Results copied to clipboard!\n`.grey);
+                  console.log(modifiedYamlOutput.green);
+
+                  clipboardy.writeSync(modifiedYamlOutput.replace(/^/gm, "  "));
+                  searchForSeries();
+                });
             });
-      })
+        })
       .catch((error) => {
         console.error(colors.red(error));
         searchForSeries();
@@ -100,20 +110,20 @@ function searchForSeries() {
 }
 
 function searchForMovie() {
-  rl.question(colors.cyan("\nEnter a TMDB Movie ID: "), (movieId) => {
-    if (movieId.toLowerCase() === "s" || movieId.toLowerCase() === "series" || movieId.toLowerCase() === "tv") {
-      console.log(`You're now searching for Series!\n`.grey);
+  rl.question(colors.cyan("\nEnter a TMDB Movie ID: "), (mediaId) => {
+    if (mediaId.toLowerCase() === "s" || mediaId.toLowerCase() === "series" || mediaId.toLowerCase() === "tv") {
+      console.log(`\nYou're now searching for Series!\n`.grey + `⚠️ You can at any time type `.white + `M`.underline.cyan + `ovies to switch mode.`.white);
       searchForSeries();
-    } else if (movieId.toLowerCase() === "m" || movieId.toLowerCase() === "movie") {
-      console.log(`\nYou're still in Movie searching mode.\n`.grey);
+    } else if (mediaId.toLowerCase() === "m" || mediaId.toLowerCase() === "movie") {
+      console.log(`\nYou're still in Movie searching mode.\n`.grey + `⚠️ You can at any time type `.white + `S`.underline.cyan + `eries to switch mode.`.white);
       searchForMovie();
     } else {
       tmdb.movie
-        .getDetails({ pathParameters: { movie_id: movieId } })
+        .getDetails({ pathParameters: { movie_id: mediaId } })
         .then((response) => {
           const { title, production_countries } = response.data;
 
-          return tmdb.movie.getAlternativeTitles({ pathParameters: { movie_id: movieId } })
+          return tmdb.movie.getAlternativeTitles({ pathParameters: { movie_id: mediaId } })
             .then((response) => {
               const { titles } = response.data;
 
@@ -124,33 +134,43 @@ function searchForMovie() {
                 .map((alternateTitles) => alternateTitles.title)
                 .sort();
 
-              const data = [
-                {
-                  title: title,
-                  "tmdb-id": movieId,
-                  ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
-                },
-              ];
+              return tmdb.movie.getExternalIDs({ pathParameters: { movie_id: mediaId } })
+                .then((response) => {
+                  const { imdb_id } = response.data;
 
-              const yamlOutput = yaml.dump(data, {
-                quotingType: `"`,
-                forceQuotes: true,
-                indent: 2,
-              });
+                  const data = [
+                    {
+                      title: title,
+                      ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
+                    },
+                  ];
 
-              console.log("\n" + yamlOutput.green);
+                  const yamlOutput = yaml.dump(data, {
+                    quotingType: `"`,
+                    forceQuotes: true,
+                    indent: 2,
+                  });
 
-              clipboardy.writeSync(yamlOutput.replace(/^/gm, "  "));
-              console.log(`Results copied to clipboard!`.grey);
+                  const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + mediaId;
+                  const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
 
-              searchForMovie();
+                  const regex = /^(\s*- title:.*)$/m;
+                  const modifiedYamlOutput = yamlOutput.replace(regex, `$1${url_TMDB}${url_IMDB}`);
+
+                  console.log(`Results copied to clipboard!\n`.grey);
+                  console.log(modifiedYamlOutput.green);
+
+                  clipboardy.writeSync(modifiedYamlOutput.replace(/^/gm, "  "));
+                  searchForMovie();
+                });
             });
         })
         .catch((error) => {
           console.error(colors.red(error));
           searchForMovie();
         });
-      };
+    };
   });
 }
+
 

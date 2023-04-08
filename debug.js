@@ -21,24 +21,16 @@ console.log(`Made for debugging\n`.grey);
 searchPrompt()
 
 function searchPrompt() {
-    console.log(`Right now, nothing here works!`.red)
-    rl.question(
-        `Type your desired query, like `.cyan + `tv.getDetails`.green + ` or `.cyan + `movie.getAlternativeTitles `.green,
-        (answer) => {
-            const [media, query] = answer.split(".");
-            rl.question(`\nEnter a TMDB ${media} ID: `.cyan, (mediaId) => {
-                console.log(query)
-                tmdb[query]
-                .get({ pathParameters: { [media + "_id"]: mediaId } })
-                .then((response) => {
-                    console.log(response.data);
-                    searchPrompt1();
-                })
-                .catch((error) => {
-                    console.error(colors.red(error));
-                    searchPrompt1();
-                });
-            });
-        }
-    );
+    rl.question(colors.cyan("\nEnter a TMDB ID: "), (mediaId) => {
+        tmdb.tv
+        .getDetails({ pathParameters: { tv_id: mediaId } })
+        .then((response) => {
+            console.log(response.data)
+            searchPrompt();
+        })
+        .catch((error) => {
+            console.error(colors.red(error));
+            searchPrompt();
+        });
+    });
 }
