@@ -14,15 +14,15 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const answerSeries = ["s", "series", "tv"];
-const answerMovie = ["m", "movie"];
+const answerSeries = ["s", "series", "serie", "show", "tv"];
+const answerMovie = ["m", "movie", "film"];
 
 function showOpening() {
   console.log('\x1Bc');
   console.log(`TMDB Scraper for PlexAniSync `.cyan + pjson.version + `\n`);
-  console.log(`Created by @Soitora`.grey);
-  console.log(`Made for contribution to https://github.com/RickDB/PlexAniSync-Custom-Mappings\n`.grey);
-  console.log(`⚠️ You can at any time change between Movie and Series.`.grey)
+  console.log(`Created by ${"@Soitora".underline}`.grey);
+  console.log(`Made for contribution to ${"RickDB/PlexAniSync".underline} custom mappings\n`.grey);
+  console.log(`ℹ️ You can at any time change between searching for Movies and Series by typing the mode again.`)
 }
 
 let mediaType;
@@ -31,17 +31,15 @@ showOpening()
 searchPrompt()
 
 function searchPrompt() {
-  const question = `Do you want to search for a ${"S".underline.cyan}eries or a ${"M".underline.cyan}ovie? `;
-  
-  rl.question(question.white, (answer) => {
-    const lowercaseAnswer = answer.toLowerCase();
-    if (answerMovie.includes(lowercaseAnswer)) {
+  const question = `\nDo you want to search for a ${"S".underline.cyan}eries or a ${"M".underline.cyan}ovie? `;
+  rl.question(question, (answer) => {
+    if (answerMovie.includes(answer.toLowerCase())) {
       showOpening();
-      console.log(`\nYou're now searching for Movies!`.grey);
+      console.log(`\nSearching for Movies 🎥`.yellow);
       searchForMovies();
-    } else if (answerSeries.includes(lowercaseAnswer)) {
+    } else if (answerSeries.includes(answer.toLowerCase())) {
       showOpening();
-      console.log(`\nYou're now searching for Series!`.grey);
+      console.log(`\nSearching for Series 📺`.yellow);
       searchForSeries();
     } else {
     console.log(colors.red(`Invalid answer.\n`));
@@ -102,24 +100,26 @@ async function getDetails(mediaType, mediaId) {
   const apiMethod = apiMethods[mediaType];
   const propertyName = propertyNames[mediaType];
 
-  const { data: { [propertyName]: mediaName, production_countries } } = await apiMethod({ pathParameters: { [`${mediaType}_id`]: mediaId } });
+  const { data: { [propertyName]: mediaName, production_countries, id: tmdb_id } } = await apiMethod({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-  return { mediaName, production_countries };
+  return { mediaName, production_countries, tmdb_id };
 }
 
 async function searchForSeries() {
   mediaType = "tv"
 
-  rl.question(colors.cyan("\nEnter a TMDB series ID: "), async (mediaId) => {
+  const prompt = `\nEnter a ${"TMDB Series ID:".bold} `;
+  rl.question(prompt.cyan, async (mediaId) => {
     try {
-      if (answerMovie.includes(mediaId)) {
-        console.log(`\nYou're now searching for Movies!`.grey);
+      if (answerMovie.includes(mediaId.toLowerCase())) {
+        showOpening()
+        console.log(`\nSearching for Movies 🎥`.yellow);
         searchForMovies();
         return;
-      } else if (answerSeries.includes(mediaId)) {
-        console.log(`\nYou're still in Series searching mode.`.grey);
+      } else if (answerSeries.includes(mediaId.toLowerCase())) {
+        console.log(`\nYou're already searching for Series.`.red);
       } else {
-        const { mediaName, production_countries } = await getDetails(mediaType, mediaId);
+        const { mediaName, production_countries, tmdb_id } = await getDetails(mediaType, mediaId);
 
         const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
         const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes);
@@ -138,7 +138,7 @@ async function searchForSeries() {
           indent: 2,
         });
 
-        const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + mediaId;
+        const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
         const url_TVDB = tvdb_id !== null ? `\n  # https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : '';
         const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
 
@@ -167,16 +167,18 @@ async function searchForSeries() {
 async function searchForMovies() {
   mediaType = "movie"
 
-  rl.question(colors.cyan("\nEnter a TMDB movie ID: "), async (mediaId) => {
+  const prompt = `\nEnter a ${"TMDB Movie ID:".bold} `;
+  rl.question(prompt.cyan, async (mediaId) => {
     try {
-      if (answerSeries.includes(mediaId)) {
-        console.log(`\nYou're now searching for Series!`.grey);
+      if (answerSeries.includes(mediaId.toLowerCase())) {
+        showOpening()
+        console.log(`\nSearching for Series 📺`.yellow);
         searchForSeries();
         return;
-      } else if (answerMovie.includes(mediaId)) {
-        console.log(`\nYou're still in Movie searching mode.`.grey);
+      } else if (answerMovie.includes(mediaId.toLowerCase())) {
+        console.log(`\nYou're already searching for Movies.`.red);
       } else {
-        const { mediaName, production_countries } = await getDetails(mediaType, mediaId);
+        const { mediaName, production_countries, tmdb_id } = await getDetails(mediaType, mediaId);
 
         const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
         const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes);
@@ -195,7 +197,7 @@ async function searchForMovies() {
           indent: 2,
         });
 
-        const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + mediaId;
+        const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
         const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
 
         const regex = /^(\s*- title:.*)$/m;
