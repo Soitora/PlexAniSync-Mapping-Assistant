@@ -1,2 +1,2 @@
-# TMDB-PAS-Scraper
- TMDB Scraper for PlexAniSync
+# TMDB-PAS-Assistant
+ TMDB Assistant for PlexAniSync

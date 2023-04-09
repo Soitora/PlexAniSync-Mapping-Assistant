@@ -13,7 +13,7 @@ const rl = readline.createInterface({
 });
 
 console.log('\x1Bc');
-console.log(`TMDB Scraper for PlexAniSync `.cyan + pjson.version + `\n`);
+console.log(`TMDB Assistant for PlexAniSync `.cyan + pjson.version + `\n`);
 console.log(`Created by @Soitora`.grey);
 console.log(`Made for debugging\n`.grey);
 

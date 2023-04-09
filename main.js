@@ -19,7 +19,7 @@ const answerMovie = ["m", "movie", "film"];
 
 function showOpening() {
   console.log('\x1Bc');
-  console.log(`TMDB Scraper for PlexAniSync `.cyan + pjson.version + `\n`);
+  console.log(`TMDB Assistant for PlexAniSync `.cyan + pjson.version + `\n`);
   console.log(`Created by ${"@Soitora".underline}`.grey);
   console.log(`Made for contribution to ${"RickDB/PlexAniSync".underline} custom mappings\n`.grey);
   console.log(`ℹ️ You can at any time change between searching for Movies and Series by typing the mode again.`)
