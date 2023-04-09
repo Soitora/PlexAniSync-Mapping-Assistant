@@ -151,7 +151,13 @@ async function searchForSeries() {
         clipboardy.writeSync(modifiedYamlOutput.replace(/^/gm, "  "));
       }
     } catch (error) {
-      console.error(colors.red(error));
+      if (error.errorCode === 404) {
+        console.error("The requested media does not exist.".red);
+      } else {
+        console.error("An error occurred:", error.message);
+      }
+
+      searchForSeries();
     }
 
     searchForSeries();
@@ -201,7 +207,13 @@ async function searchForMovies() {
         clipboardy.writeSync(modifiedYamlOutput.replace(/^/gm, "  "));
       }
     } catch (error) {
-      console.error(colors.red(error));
+      if (error.errorCode === 404) {
+        console.error("The requested media does not exist.".red);
+      } else {
+        console.error("An error occurred:", error.message);
+      }
+
+      searchForMovies();
     }
 
     searchForMovies();
