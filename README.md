@@ -20,7 +20,7 @@ cp .env.example .env
 ## Usage
 To start the assistant, run the following command:
 ```bash
-npm run main
+npm run assistant
 ```
 
 ## Scripts
