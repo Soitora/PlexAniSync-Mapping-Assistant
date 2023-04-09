@@ -5,7 +5,7 @@
   "main": "synonyms.js",
   "type": "module",
   "scripts": {
-    "main": "node assistant.js",
+    "assistant": "node assistant.js",
     "debug": "node debug.js",
     "build": "pkg -t node8-win assistant.js --output tmdb-pas-assistant.exe",
     "patch": "npm version patch -m \"Bump version to %s\" && git push --follow-tags",

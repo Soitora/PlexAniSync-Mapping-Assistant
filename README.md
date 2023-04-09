@@ -24,7 +24,7 @@ npm run main
 ```
 
 ## Scripts
-- `main`: Runs the main script
+- `assistant`: Runs the assistant script
 - `debug`: Runs the debug script to see raw outputs
 - `build`: Builds an executable file for Windows
 - `patch`: Increments the patch version number and pushes the changes
