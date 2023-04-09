@@ -1,6 +1,8 @@
 # TMDB-PAS-Assistant
 TMDB Assistant for [PlexAniSync](https://github.com/RickDB/PlexAniSync/), specifically, for contribution to the [custom mappings](https://github.com/RickDB/PlexAniSync-Custom-Mappings) project.
 
+![image](https://user-images.githubusercontent.com/10836780/230778146-3611f42c-6e2e-4d73-9f2f-d360d211499e.png)
+
 ## Installation
 1. Clone the repository or download the source code
 ```bash
