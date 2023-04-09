@@ -6,11 +6,7 @@
   "type": "module",
   "scripts": {
     "assistant": "node assistant.js",
-    "debug": "node debug.js",
-    "build": "pkg -t node8-win assistant.js --output tmdb-pas-assistant.exe",
-    "patch": "npm version patch -m \"Bump version to %s\" && git push --follow-tags",
-    "minor": "npm version minor -m \"Bump version to %s\" && git push --follow-tags",
-    "major": "npm version major -m \"Bump version to %s\" && git push --follow-tags"
+    "debug": "node debug.js"
   },
   "repository": {
     "type": "git",
@@ -37,7 +33,6 @@
     "js-yaml": "^4.1.0",
     "node-themoviedb": "^0.2.8",
     "pjson": "^1.0.9",
-    "pkg": "^5.8.1",
     "readline": "^1.3.0",
     "tmdb": "file:util/tmdb.js",
     "yaml": "^2.2.1"
