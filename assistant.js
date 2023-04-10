@@ -147,13 +147,13 @@ async function searchForSeries() {
         const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
         const url_TVDB = tvdb_id !== null ? `\n  # https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : '';
         const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
-        const url_AL = `\n      # https://anilist.co/anime/`
+        // const url_AL = `\n      # https://anilist.co/anime/`
 
         const titleRegex = /^(\s*- title:.*)$/m;
         yamlOutput = yamlOutput.replace(titleRegex, `$1${url_TMDB}${url_TVDB}${url_IMDB}`);
 
-        const seasonRegex = /^(\s*anilist-id:.*)$/gm;
-        yamlOutput = yamlOutput.replace(seasonRegex, `$1${url_AL}`);
+        // const seasonRegex = /^(\s*anilist-id:.*)$/gm;
+        // yamlOutput = yamlOutput.replace(seasonRegex, `$1${url_AL}`);
 
         console.log(`Results copied to clipboard!\n`.grey);
         console.log(yamlOutput.green);
@@ -198,10 +198,16 @@ async function searchForMovies() {
           {
             title: mediaName,
             ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
+            seasons: [
+              {
+                season: 1,
+                "anilist-id": 0,
+              },
+            ],
           },
         ];
 
-        const yamlOutput = yaml.dump(data, {
+        let yamlOutput = yaml.dump(data, {
           quotingType: `"`,
           forceQuotes: true,
           indent: 2,
@@ -209,14 +215,18 @@ async function searchForMovies() {
 
         const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
         const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : '';
+        // const url_AL = `\n      # https://anilist.co/anime/`
 
-        const regex = /^(\s*- title:.*)$/m;
-        const modifiedYamlOutput = yamlOutput.replace(regex, `$1${url_TMDB}${url_IMDB}`);
+        const titleRegex = /^(\s*- title:.*)$/m;
+        yamlOutput = yamlOutput.replace(titleRegex, `$1${url_TMDB}${url_IMDB}`);
+
+        // const seasonRegex = /^(\s*anilist-id:.*)$/gm;
+        // yamlOutput = yamlOutput.replace(seasonRegex, `$1${url_AL}`);
 
         console.log(`Results copied to clipboard!\n`.grey);
-        console.log(modifiedYamlOutput.green);
+        console.log(yamlOutput.green);
 
-        clipboardy.writeSync(modifiedYamlOutput.replace(/^/gm, "  "));
+        clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
       }
     } catch (error) {
       if (error.errorCode === 404) {
