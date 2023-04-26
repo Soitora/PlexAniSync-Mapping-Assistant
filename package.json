@@ -29,6 +29,7 @@
     "clipboardy": "^3.0.0",
     "colors": "^1.4.0",
     "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security",
     "i18n-iso-countries": "^7.5.0",
     "js-yaml": "^4.1.0",
     "node-themoviedb": "^0.2.8",
