@@ -8,6 +8,11 @@ import pjson from "pjson";
 
 dotenv.config();
 
+if (!process.env.TMDB_APIKEY || process.env.TMDB_APIKEY.length !== 32 || !/^[a-fA-F0-9]+$/.test(process.env.TMDB_APIKEY)) {
+  console.log(`Invalid ${"TMDB_APIKEY".red} value, please provide a proper API key.`)
+  process.exit(1);
+}
+
 const tmdb = new MovieDB(process.env.TMDB_APIKEY);
 const rl = readline.createInterface({
   input: process.stdin,
