@@ -53,7 +53,7 @@ function searchPrompt() {
   });
 }
 
-async function getFormattedTitles(mediaType, mediaId, isoCodes) {
+async function getFormattedTitles(mediaType, mediaId, isoCodes, mediaName) {
   const apiMethods = {
     tv: tmdb.tv.getAlternativeTitles,
     movie: tmdb.movie.getAlternativeTitles
@@ -70,7 +70,7 @@ async function getFormattedTitles(mediaType, mediaId, isoCodes) {
   const { data: { [propertyName]: titles } } = await apiMethod({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
   const formattedTitles = titles
-    .filter((alternateTitles) => isoCodes.has(alternateTitles.iso_3166_1))
+    .filter((alternateTitles) => isoCodes.has(alternateTitles.iso_3166_1) && alternateTitles.title !== mediaName)
     .map((alternateTitles) => alternateTitles.title)
     .sort();
 
@@ -127,7 +127,7 @@ async function searchForSeries() {
         const { mediaName, production_countries, tmdb_id } = await getDetails(mediaType, mediaId);
 
         const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
-        const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes);
+        const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes, mediaName);
         const { tvdb_id, imdb_id } = await getExternalIDs(mediaType, mediaId);
 
         const data = [
@@ -196,7 +196,7 @@ async function searchForMovies() {
         const { mediaName, production_countries, tmdb_id } = await getDetails(mediaType, mediaId);
 
         const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
-        const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes);
+        const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes, mediaName);
         const { imdb_id } = await getExternalIDs(mediaType, mediaId);
 
         const data = [
