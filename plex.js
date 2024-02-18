@@ -11,11 +11,13 @@ function showOpening() {
     console.log(`Made for contribution to ${"RickDB/PlexAniSync".underline} custom mappings\n`.grey);
 }
 
-showOpening()
-searchPrompt()
+showOpening();
+searchPrompt();
 
 function searchPrompt() {
-    const question = `\nChoose your option:\n${"1".underline.cyan}. Search for ${"Series".grey} on Plex using ${"TMDB".grey}\n${"2".underline.cyan}. Search for ${"Movies".grey} on Plex using ${"TMDB".grey}\n\nInput: `;
+    const question = `\nChoose your option:\n${"1".underline.cyan}. Search for ${"Series".grey} on Plex using ${"TMDB".grey}\n${"2".underline.cyan}. Search for ${
+        "Movies".grey
+    } on Plex using ${"TMDB".grey}\n\nInput: `;
     rl.question(question, (answer) => {
         switch (answer) {
             case "1":
@@ -36,8 +38,8 @@ function searchPromptTMDB(mediaType) {
     const prompt = `\nEnter a ${"TMDB ID:".bold} `;
     rl.question(prompt.cyan, async (mediaId) => {
         try {
-            const plex_guid = await plexSearchTmdb(mediaType, mediaId)
-            console.log(plex_guid)
+            const plex_guid = await plexSearchTmdb(mediaType, mediaId);
+            console.log(plex_guid);
         } catch (error) {
             if (error.errorCode === 404) {
                 console.error("The requested media does not exist.".red);

@@ -17,7 +17,7 @@ export async function getPlexGuid(mediaType, mediaId) {
         const plexTypes = {
             movie: "1",
             tv: "2",
-        }
+        };
 
         const plexType = plexTypes[mediaType];
 
@@ -36,7 +36,7 @@ export async function getPlexGuid(mediaType, mediaId) {
             // Determine the Plex agent based on media type
             const plexAgents = {
                 tv: "tv.plex.agents.series",
-                movie: "tv.plex.agents.movie"
+                movie: "tv.plex.agents.movie",
             };
             const plexAgent = plexAgents[mediaType];
 
@@ -64,7 +64,7 @@ export async function plexSearchTmdb(mediaType, mediaId) {
         const plexTypes = {
             movie: "1",
             tv: "2",
-        }
+        };
 
         const plexType = plexTypes[mediaType];
 
@@ -83,7 +83,7 @@ export async function plexSearchTmdb(mediaType, mediaId) {
             // Determine the Plex agent based on media type
             const plexAgents = {
                 tv: "tv.plex.agents.series",
-                movie: "tv.plex.agents.movie"
+                movie: "tv.plex.agents.movie",
             };
             const plexAgent = plexAgents[mediaType];
 

@@ -8,4 +8,4 @@ const rl = readline.createInterface({
 const answerSeries = ["s", "series", "serie", "show", "tv"];
 const answerMovie = ["m", "movie", "film"];
 
-export { rl, answerSeries, answerMovie }
+export { rl, answerSeries, answerMovie };

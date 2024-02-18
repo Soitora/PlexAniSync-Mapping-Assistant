@@ -17,4 +17,4 @@ const validateEnvironmentVariable = (variable, expectedLength, regexTest, errorM
     }
 };
 
-export { validateEnvironmentVariable }
+export { validateEnvironmentVariable };
