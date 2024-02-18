@@ -1,6 +1,6 @@
 {
   "name": "tmdb-pas-assistant",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "TMDB Assistant for PlexAniSync",
   "main": "synonyms.js",
   "type": "module",

@@ -54,13 +54,16 @@ export async function handleSearch(mediaType, mediaId) {
             indent: 2,
         });
 
-        const guid_PLEX = plex_guid !== undefined && plex_guid !== null ? `\n  # guid: ${plex_guid}` : "";
         const url_TMDB = `\n  # TMDB: https://www.themoviedb.org/tv/${tmdb_id}`;
         const url_TVDB = tvdb_id ? `\n  # TVDB: https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : "";
         const url_IMDB = imdb_id ? `\n  # IMDB: https://www.imdb.com/title/${imdb_id}/` : "";
+        const guid_PLEX = plex_guid ? `  # guid: ${plex_guid}\n` : "";
 
         const titleRegex = /^(\s*- title:.*)$/m;
-        yamlOutput = yamlOutput.replace(titleRegex, `$1${guid_PLEX}${url_TMDB}${url_TVDB}${url_IMDB}`);
+        yamlOutput = yamlOutput.replace(titleRegex, `$1${url_TMDB}${url_TVDB}${url_IMDB}`);
+
+        const seasonsRegex = /^(\s*seasons:.*)$/m;
+        yamlOutput = yamlOutput.replace(seasonsRegex, `${guid_PLEX}$1`);
 
         console.log(`Results copied to clipboard!\n`.grey);
         console.log(yamlOutput.green);
