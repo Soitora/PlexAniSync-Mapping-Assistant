@@ -48,10 +48,10 @@ export async function searchForSeries() {
                     indent: 2,
                 });
 
-                const guid_PLEX = plex_guid !== null ? `\n  # ${plex_guid}` : "";
-                const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
-                const url_TVDB = tvdb_id !== null ? `\n  # https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : "";
-                const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : "";
+                const guid_PLEX = plex_guid !== null ? `\n  # PLEX: ${plex_guid}` : "";
+                const url_TMDB = "\n  # TMDB: https://www.themoviedb.org/tv/" + tmdb_id;
+                const url_TVDB = tvdb_id !== null ? `\n  # TVDB: https://www.thetvdb.com/dereferrer/series/${tvdb_id}` : "";
+                const url_IMDB = imdb_id !== null ? `\n  # IMDB: https://www.imdb.com/title/${imdb_id}/` : "";
                 // const url_AL = `\n      # https://anilist.co/anime/`
 
                 const titleRegex = /^(\s*- title:.*)$/m;
@@ -118,16 +118,12 @@ export async function searchForMovies() {
                     indent: 2,
                 });
 
-                const guid_PLEX = plex_guid !== null ? `\n  # ${plex_guid}` : "";
-                const url_TMDB = "\n  # https://www.themoviedb.org/tv/" + tmdb_id;
-                const url_IMDB = imdb_id !== null ? `\n  # https://www.imdb.com/title/${imdb_id}/` : "";
-                // const url_AL = `\n      # https://anilist.co/anime/`
+                const guid_PLEX = plex_guid !== null ? `\n  # PLEX: ${plex_guid}` : "";
+                const url_TMDB = "\n  # TMDB: https://www.themoviedb.org/tv/" + tmdb_id;
+                const url_IMDB = imdb_id !== null ? `\n  # IMDB: https://www.imdb.com/title/${imdb_id}/` : "";
 
                 const titleRegex = /^(\s*- title:.*)$/m;
                 yamlOutput = yamlOutput.replace(titleRegex, `$1${guid_PLEX}${url_TMDB}${url_IMDB}`);
-
-                // const seasonRegex = /^(\s*anilist-id:.*)$/gm;
-                // yamlOutput = yamlOutput.replace(seasonRegex, `$1${url_AL}`);
 
                 console.log(`Results copied to clipboard!\n`.grey);
                 console.log(yamlOutput.green);
