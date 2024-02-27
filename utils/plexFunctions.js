@@ -1,16 +1,11 @@
 import * as dotenv from "dotenv";
 import axios from "axios";
 
-import { validateEnvironmentVariable } from "./precheck.js";
-
 dotenv.config();
 
 const PLEX_HOST = "http://" + process.env.PLEX_HOST || "http://127.0.0.1:32400";
 const PLEX_TOKEN = process.env.PLEX_TOKEN;
 const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
-
-validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.");
-validateEnvironmentVariable("PLEX_TOKEN", 20, null, "please provide a proper X-PLEX-TOKEN.");
 
 export async function getPlexGuid(mediaType, mediaId) {
     try {

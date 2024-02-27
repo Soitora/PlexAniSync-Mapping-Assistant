@@ -3,6 +3,10 @@ import pjson from "pjson";
 
 import { rl } from "./utils/constants.js";
 import { plexSearchTmdb } from "./utils/plexFunctions.js";
+import { validateEnvironmentVariable } from "./utils/precheck.js";
+
+validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.", true);
+validateEnvironmentVariable("PLEX_TOKEN", 20, null, "please provide a proper X-PLEX-TOKEN.", true);
 
 function showOpening() {
     console.log("\x1Bc");

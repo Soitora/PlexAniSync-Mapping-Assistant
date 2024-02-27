@@ -2,13 +2,10 @@ import * as dotenv from "dotenv";
 import MovieDB from "node-themoviedb";
 
 import { getPlexGuid } from "./plexFunctions.js";
-import { validateEnvironmentVariable } from "./precheck.js";
 
 dotenv.config();
 
 const tmdb = new MovieDB(process.env.TMDB_APIKEY);
-
-validateEnvironmentVariable("TMDB_APIKEY", 32, /^[a-fA-F0-9]+$/, "please provide a proper API key.");
 
 export async function getFormattedTitles(mediaType, mediaId, isoCodes, mediaName) {
     const apiMethods = {
@@ -48,9 +45,13 @@ export async function getExternalIDs(mediaType, mediaId) {
         data: { tvdb_id, imdb_id },
     } = await apiMethod({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-    const plex_guid = await getPlexGuid(mediaType, mediaId);
+    if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
+        const plex_guid = await getPlexGuid(mediaType, mediaId);
 
-    return { plex_guid, tvdb_id, imdb_id };
+        return { plex_guid, tvdb_id, imdb_id };
+    }
+
+    return { tvdb_id, imdb_id };
 }
 
 export async function getDetails(mediaType, mediaId) {

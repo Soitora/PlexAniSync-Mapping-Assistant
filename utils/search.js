@@ -29,6 +29,7 @@ export async function handleSearch(mediaType, mediaId) {
 
         const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
         const formattedTitles = await getFormattedTitles(mediaType, mediaId, isoCodes, mediaName);
+
         const { plex_guid, tvdb_id, imdb_id } = await getExternalIDs(mediaType, mediaId);
 
         const data = [
@@ -60,13 +61,14 @@ export async function handleSearch(mediaType, mediaId) {
         const guid_PLEX = plex_guid ? `  # guid: ${plex_guid}\n` : "";
 
         const titleRegex = /^(\s*- title:.*)$/m;
-        yamlOutput = yamlOutput.replace(titleRegex, `$1${url_TMDB}${url_TVDB}${url_IMDB}`);
-
         const seasonsRegex = /^(\s*seasons:.*)$/m;
-        yamlOutput = yamlOutput.replace(seasonsRegex, `${guid_PLEX}$1`);
+        yamlOutput = yamlOutput.replace(titleRegex, `$1${url_TMDB}${url_TVDB}${url_IMDB}`);
+        if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) yamlOutput = yamlOutput.replace(seasonsRegex, `${guid_PLEX}$1`);
 
         console.log(`Results copied to clipboard!\n`.grey);
         console.log(yamlOutput.green);
+
+        if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) console.log(`Your ${"PLEX_HOST".red} or ${"PLEX_TOKEN".red} seems to be missing, ${"guid".blue} will be missing from the results.`);
 
         clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
     } catch (error) {
