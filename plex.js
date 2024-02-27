@@ -2,7 +2,7 @@ import colors from "colors";
 import pjson from "pjson";
 
 import { rl } from "./utils/constants.js";
-import { plexSearchTmdb } from "./utils/plexFunctions.js";
+import { plexSearchMetadataAgent } from "./utils/plexFunctions.js";
 import { validateEnvironmentVariable } from "./utils/precheck.js";
 
 validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.", true);
@@ -42,7 +42,7 @@ function searchPromptTMDB(mediaType) {
     const prompt = `\nEnter a ${"TMDB ID:".bold} `;
     rl.question(prompt.cyan, async (mediaId) => {
         try {
-            const plex_guid = await plexSearchTmdb(mediaType, mediaId);
+            const plex_guid = await plexSearchMetadataAgent(mediaType, mediaId);
             console.log(plex_guid);
         } catch (error) {
             if (error.errorCode === 404) {

@@ -7,7 +7,7 @@ const PLEX_HOST = "http://" + process.env.PLEX_HOST || "http://127.0.0.1:32400";
 const PLEX_TOKEN = process.env.PLEX_TOKEN;
 const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
 
-export async function getPlexGuid(mediaType, mediaId) {
+export async function getPlexGuid(mediaType, mediaId, metadataAgent) {
     try {
         const plexTypes = {
             movie: "1",
@@ -35,8 +35,8 @@ export async function getPlexGuid(mediaType, mediaId) {
             };
             const plexAgent = plexAgents[mediaType];
 
-            // Make a request to search for a media item using TMDB ID
-            const matchResponse = await axios.get(`${PLEX_HOST}/library/metadata/${ratingKey}/matches?manual=1&title=TMDB-${mediaId}&agent=${plexAgent}`, {
+            // Make a request to search for a media item using TMDB, TVDB, or IMDB
+            const matchResponse = await axios.get(`${PLEX_HOST}/library/metadata/${ratingKey}/matches?manual=1&title=${metadataAgent}-${mediaId}&agent=${plexAgent}`, {
                 headers: {
                     "X-Plex-Token": PLEX_TOKEN,
                 },
@@ -54,7 +54,7 @@ export async function getPlexGuid(mediaType, mediaId) {
     }
 }
 
-export async function plexSearchTmdb(mediaType, mediaId) {
+export async function plexSearchMetadataAgent(mediaType, mediaId) {
     try {
         const plexTypes = {
             movie: "1",
@@ -82,8 +82,8 @@ export async function plexSearchTmdb(mediaType, mediaId) {
             };
             const plexAgent = plexAgents[mediaType];
 
-            // Make a request to search for a media item using TMDB ID
-            const matchResponse = await axios.get(`${PLEX_HOST}/library/metadata/${ratingKey}/matches?manual=1&title=TMDB-${mediaId}&agent=${plexAgent}`, {
+            // Make a request to search for a media item using TMDB, TVDB, or IMDB
+            const matchResponse = await axios.get(`${PLEX_HOST}/library/metadata/${ratingKey}/matches?manual=1&title=${metadataAgent}-${mediaId}&agent=${plexAgent}`, {
                 headers: {
                     "X-Plex-Token": PLEX_TOKEN,
                 },
