@@ -2,7 +2,7 @@ import colors from "colors";
 import pjson from "pjson";
 
 import { rl } from "./utils/constants.js";
-import { getPlexMatch } from "./utils/plexFunctions.js";
+import { getPlexMatch } from "./api/plex.js";
 import { validateEnvironmentVariable } from "./utils/precheck.js";
 
 validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.", true);

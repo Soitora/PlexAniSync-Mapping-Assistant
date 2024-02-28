@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import TVDB from "tvdbapi";
 
-import { getPlexMatch } from "./plexFunctions.js";
+import { getPlexMatch } from "./plex.js";
 
 dotenv.config();
 

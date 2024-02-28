@@ -3,8 +3,8 @@ import yaml from "js-yaml";
 import clipboardy from "clipboardy";
 
 import { rl, answerSeries, answerMovie } from "./constants.js";
-import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "./tmdbApi.js";
-import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "./tvdbApi.js";
+import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
+import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
 
 export async function searchForMedia(mediaType, metadataAgent) {
     const prompt = `\nEnter a ${metadataAgent + " ID:".bold} `;

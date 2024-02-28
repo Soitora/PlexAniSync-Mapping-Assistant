@@ -4,7 +4,7 @@ import colors from "colors";
 import { describe, it } from "mocha";
 import { assert } from "chai";
 
-import { getPlexMatch } from "../utils/plexFunctions.js";
+import { getPlexMatch } from "../api/plex.js";
 
 dotenv.config();
 

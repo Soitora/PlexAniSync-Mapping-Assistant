@@ -4,7 +4,7 @@ import colors from "colors";
 import { describe, it } from "mocha";
 import { assert } from "chai";
 
-import { getDetails } from "../utils/tmdbApi.js";
+import { getSeriesById, getMovieById } from "../api/tmdb.js";
 
 dotenv.config();
 
@@ -16,10 +16,10 @@ if (process.env.TMDB_APIKEY) {
                 const seriesName = "One Piece";
 
                 try {
-                    const response = await getDetails("tv", seriesId);
+                    const { tmdb_id, name } = await getSeriesById(seriesId);
 
-                    assert.strictEqual(response.tmdb_id, seriesId, "TMDB IDs should match");
-                    assert.strictEqual(response.mediaName, seriesName, "Media names should match");
+                    assert.strictEqual(tmdb_id, seriesId, "Series IDs should match");
+                    assert.strictEqual(name, seriesName, "Series names should match");
                 } catch (error) {
                     throw error;
                 }
@@ -32,10 +32,10 @@ if (process.env.TMDB_APIKEY) {
                 const movieName = "Princess Mononoke";
 
                 try {
-                    const response = await getDetails("movie", movieId);
+                    const { tmdb_id, name } = await getMovieById(movieId);
 
-                    assert.strictEqual(response.tmdb_id, movieId, "TMDB IDs should match");
-                    assert.strictEqual(response.mediaName, movieName, "Media names should match");
+                    assert.strictEqual(tmdb_id, movieId, "Movie IDs should match");
+                    assert.strictEqual(name, movieName, "Movie names should match");
                 } catch (error) {
                     throw error;
                 }
