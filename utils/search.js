@@ -4,6 +4,7 @@ import clipboardy from "clipboardy";
 
 import { rl, answerSeries, answerMovie } from "./constants.js";
 import { getFormattedTitles as TMDB_getFormattedTitles, getExternalIDs as TMDB_getExternalIDs, getDetails as TMDB_getDetails } from "./tmdbApi.js";
+import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "./tvdbApi.js";
 
 export async function searchForMedia(mediaType, metadataAgent) {
     const prompt = `\nEnter a ${metadataAgent + " ID:".bold} `;
@@ -84,7 +85,7 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
     }
 
     if (metadataAgent == "TVDB") {
-        /* Nothing yet */
+        ({ name: mediaName, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: formattedTitles, seasons: number_of_seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
     }
 
     return { mediaName, formattedTitles, plex_guid, tvdb_id, tmdb_id, imdb_id, number_of_seasons };
