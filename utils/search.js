@@ -3,7 +3,7 @@ import yaml from "js-yaml";
 import clipboardy from "clipboardy";
 
 import { rl, answerSeries, answerMovie } from "./constants.js";
-import { getFormattedTitles as TMDB_getFormattedTitles, getExternalIDs as TMDB_getExternalIDs, getDetails as TMDB_getDetails } from "./tmdbApi.js";
+import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "./tmdbApi.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "./tvdbApi.js";
 
 export async function searchForMedia(mediaType, metadataAgent) {
@@ -24,13 +24,13 @@ export async function searchForMedia(mediaType, metadataAgent) {
 
 async function handleSearch(mediaType, mediaId, metadataAgent) {
     try {
-        const { mediaName, formattedTitles, plex_guid, tvdb_id, tmdb_id, imdb_id, number_of_seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
+        const { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
 
         const data = [
             {
-                title: mediaName,
-                ...(formattedTitles.length > 0 && { synonyms: formattedTitles }),
-                seasons: Array.from({ length: mediaType === "movie" ? 1 : number_of_seasons }, (_, i) => ({
+                title,
+                ...(synonyms.length > 0 && { synonyms }),
+                seasons: Array.from({ length: mediaType === "movie" ? 1 : seasons }, (_, i) => ({
                     season: i + 1,
                     "anilist-id": 0,
                 })),
@@ -73,22 +73,17 @@ function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaTyp
 }
 
 async function metadataHandler(mediaType, mediaId, metadataAgent) {
-    let mediaName, formattedTitles, plex_guid, tvdb_id, tmdb_id, imdb_id, number_of_seasons, production_countries;
+    let title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons;
 
     if (metadataAgent == "TMDB") {
-        ({ mediaName, production_countries, tmdb_id, number_of_seasons } = await TMDB_getDetails(mediaType, mediaId));
-
-        const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
-        formattedTitles = await TMDB_getFormattedTitles(mediaType, mediaId, isoCodes, mediaName);
-
-        ({ plex_guid, tvdb_id, imdb_id } = await TMDB_getExternalIDs(mediaType, mediaId));
+        ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles: synonyms, seasons } = await TMDB_getEntryByTypeAndId(mediaType, mediaId));
     }
 
     if (metadataAgent == "TVDB") {
-        ({ name: mediaName, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: formattedTitles, seasons: number_of_seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
+        ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: synonyms, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
     }
 
-    return { mediaName, formattedTitles, plex_guid, tvdb_id, tmdb_id, imdb_id, number_of_seasons };
+    return { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
 }
 
 function handleSearchError(error, mediaType, metadataAgent) {

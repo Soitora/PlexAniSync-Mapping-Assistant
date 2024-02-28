@@ -4,7 +4,7 @@ import colors from "colors";
 import { describe, it } from "mocha";
 import { assert } from "chai";
 
-import { getPlexGuid } from "../utils/plexFunctions.js";
+import { getPlexMatch } from "../utils/plexFunctions.js";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                     const seriesName = "One Piece";
 
                     try {
-                        const { name } = await getPlexGuid("tv", seriesId, "TMDB");
+                        const { name } = await getPlexMatch("tv", seriesId, "TMDB");
 
                         assert.strictEqual(name, seriesName, "Series names should match");
                     } catch (error) {
@@ -32,7 +32,7 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                     const seriesName = "One Piece";
 
                     try {
-                        const { name } = await getPlexGuid("tv", seriesId, "TVDB");
+                        const { name } = await getPlexMatch("tv", seriesId, "TVDB");
 
                         assert.strictEqual(name, seriesName, "Series names should match");
                     } catch (error) {
@@ -49,7 +49,7 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                     const movieName = "Princess Mononoke";
 
                     try {
-                        const { name } = await getPlexGuid("movie", movieId, "TMDB");
+                        const { name } = await getPlexMatch("movie", movieId, "TMDB");
 
                         assert.strictEqual(name, movieName, "Movie names should match");
                     } catch (error) {

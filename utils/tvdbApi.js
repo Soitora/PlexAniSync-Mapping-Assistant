@@ -1,18 +1,11 @@
 import * as dotenv from "dotenv";
 import TVDB from "tvdbapi";
 
-import { getPlexGuid } from "./plexFunctions.js";
+import { getPlexMatch } from "./plexFunctions.js";
 
 dotenv.config();
 
 const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY });
-
-async function fetchExtendedData(tvdbMethod, mediaId) {
-    const response = await tvdbMethod.extended({ id: mediaId });
-    const { name } = (await tvdbMethod.translations({ id: mediaId, language: "eng" })).data;
-
-    return { response, name };
-}
 
 export async function getEntryByTypeAndId(mediaType, mediaId) {
     switch (mediaType) {
@@ -25,16 +18,23 @@ export async function getEntryByTypeAndId(mediaType, mediaId) {
     }
 }
 
+async function fetchExtendedData(tvdbMethod, mediaId) {
+    const response = await tvdbMethod.extended({ id: mediaId });
+    const { name } = (await tvdbMethod.translations({ id: mediaId, language: "eng" })).data;
+
+    return { response, name };
+}
+
 export async function getSeriesById(mediaId) {
     try {
         const { response, name } = await fetchExtendedData(tvdb.series, mediaId);
 
-        const { id: tvdb_id, year } = response.data;
+        const { id: tvdb_id } = response.data;
         const { plex_guid, imdb_id, tmdb_id } = await getRemoteIDs(response.data.remoteIds, "tv", mediaId);
         const aliases = await getSortedAliases(response.data.aliases);
         const seasons = await getAmountOfSeasons(response.data.seasons);
 
-        return { response, name, year, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases, seasons };
+        return { response, name, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases, seasons };
     } catch (error) {
         console.error(error);
     }
@@ -44,14 +44,34 @@ export async function getMovieById(mediaId) {
     try {
         const { response, name } = await fetchExtendedData(tvdb.movies, mediaId);
 
-        const { id: tvdb_id, year } = response.data;
+        const { id: tvdb_id } = response.data;
         const { plex_guid, imdb_id, tmdb_id } = await getRemoteIDs(response.data.remoteIds, "movie", mediaId);
         const aliases = await getSortedAliases(response.data.aliases);
 
-        return { response, name, year, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases, seasons: 1 };
+        return { response, name, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases, seasons: 1 };
     } catch (error) {
         console.error(error);
     }
+}
+
+async function getRemoteIDs(remoteIds, mediaType, mediaId) {
+    let imdb_id, tmdb_id;
+
+    remoteIds.forEach((remoteId) => {
+        if (remoteId.sourceName === "TheMovieDB.com") {
+            tmdb_id = remoteId.id;
+        } else if (remoteId.sourceName === "IMDB") {
+            imdb_id = remoteId.id;
+        }
+    });
+
+    if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
+        const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "TVDB");
+
+        return { plex_guid, imdb_id, tmdb_id };
+    }
+
+    return { imdb_id, tmdb_id };
 }
 
 async function getSortedAliases(aliases) {
@@ -67,26 +87,6 @@ async function getSortedAliases(aliases) {
     const sortedAliases = [...new Set(sortedEngAliases.concat(sortedJpnAliases))];
 
     return sortedAliases;
-}
-
-async function getRemoteIDs(remoteIds, mediaType, mediaId) {
-    let imdb_id, tmdb_id;
-
-    remoteIds.forEach((remoteId) => {
-        if (remoteId.sourceName === "TheMovieDB.com") {
-            tmdb_id = remoteId.id;
-        } else if (remoteId.sourceName === "IMDB") {
-            imdb_id = remoteId.id;
-        }
-    });
-
-    if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
-        const { guid: plex_guid } = await getPlexGuid(mediaType, mediaId, "TVDB");
-
-        return { plex_guid, imdb_id, tmdb_id };
-    }
-
-    return { imdb_id, tmdb_id };
 }
 
 async function getAmountOfSeasons(seasons) {

@@ -2,7 +2,7 @@ import colors from "colors";
 import pjson from "pjson";
 
 import { rl } from "./utils/constants.js";
-import { plexSearchMetadataAgent } from "./utils/plexFunctions.js";
+import { getPlexMatch } from "./utils/plexFunctions.js";
 import { validateEnvironmentVariable } from "./utils/precheck.js";
 
 validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.", true);
@@ -19,20 +19,40 @@ showOpening();
 searchPrompt();
 
 function searchPrompt() {
-    const question = `\nChoose your option:\n${"1".underline.cyan}. Search for ${"Series".grey} on Plex using ${"TMDB".grey}\n${"2".underline.cyan}. Search for ${
-        "Movies".grey
-    } on Plex using ${"TMDB".grey}\n\nInput: `;
+    const handleSearch = (media, mediaType, metadataAgent) => {
+        showOpening();
+        console.log(`\nSearching for ${media.gray} ${mediaType === "movie" ? "🎥" : "📺"}`.yellow);
+
+        if (metadataAgent == "TMDB") {
+            searchPromptTMDB(mediaType);
+        } else if (metadataAgent == "TVDB") {
+            searchPromptTVDB(mediaType);
+        }
+    };
+
+    const question = `\nChoose your option:\n
+    ${"1".underline.cyan}. Search for ${"Series".magenta} on Plex using ${"TMDB".blue}\n
+    ${"2".underline.cyan}. Search for ${"Movies".yellow} on Plex using ${"TMDB".blue}\n
+    ${"3".underline.cyan}. Search for ${"Series".magenta} on Plex using ${"TVDB".green}\n
+    ${"4".underline.cyan}. Search for ${"Movies".yellow} on Plex using ${"TVDB".green}\n\n
+    Input: `;
     rl.question(question, (answer) => {
         switch (answer) {
             case "1":
-                showOpening();
-                console.log(`\nSearching for Series 📺`.yellow);
-                searchPromptTMDB("tv");
+                handleSearch("Series", "tv", "TMDB");
                 break;
             case "2":
-                showOpening();
-                console.log(`\nSearching for Movies 🎥`.yellow);
-                searchPromptTMDB("movie");
+                handleSearch("Movies", "movie", "TMDB");
+                break;
+            case "3":
+                handleSearch("Series", "tv", "TVDB");
+                break;
+            case "4":
+                handleSearch("Movies", "movie", "TVDB");
+                break;
+            default:
+                console.log(colors.red(`Invalid answer.\n`));
+                searchPrompt();
                 break;
         }
     });
@@ -40,10 +60,11 @@ function searchPrompt() {
 
 function searchPromptTMDB(mediaType) {
     const prompt = `\nEnter a ${"TMDB ID:".bold} `;
+
     rl.question(prompt.cyan, async (mediaId) => {
         try {
-            const plex_guid = await plexSearchMetadataAgent(mediaType, mediaId);
-            console.log(plex_guid);
+            const { response } = await getPlexMatch(mediaType, mediaId, "TMDB");
+            console.log(response);
         } catch (error) {
             if (error.errorCode === 404) {
                 console.error("The requested media does not exist.".red);
@@ -51,9 +72,29 @@ function searchPromptTMDB(mediaType) {
                 console.error("An error occurred:", error.message);
             }
 
-            searchPromptTMDB();
+            searchPromptTMDB(mediaType);
         }
 
-        searchPromptTMDB();
+        searchPromptTMDB(mediaType);
+    });
+}
+
+function searchPromptTVDB(mediaType) {
+    const prompt = `\nEnter a ${"TVDB ID:".bold} `;
+    rl.question(prompt.cyan, async (mediaId) => {
+        try {
+            const { response } = await getPlexMatch(mediaType, mediaId, "TVDB");
+            console.log(response);
+        } catch (error) {
+            if (error.errorCode === 404) {
+                console.error("The requested media does not exist.".red);
+            } else {
+                console.error("An error occurred:", error.message);
+            }
+
+            searchPromptTVDB(mediaType);
+        }
+
+        searchPromptTVDB(mediaType);
     });
 }
