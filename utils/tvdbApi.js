@@ -3,9 +3,9 @@ import TVDB from "tvdbapi";
 
 dotenv.config();
 
-const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY })
-
 export async function getSeriesById(id) {
+    const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY })
+
     try {
         const responseOverview = await tvdb.series.get({id});
         const responseEnglish = await tvdb.series.translations({id, language: "eng"});
@@ -17,6 +17,8 @@ export async function getSeriesById(id) {
 }
 
 export async function getMovieById(id) {
+    const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY })
+
     try {
         const responseOverview = await tvdb.movies.get({id});
         const responseEnglish = await tvdb.movies.translations({id, language: "eng"});
@@ -26,5 +28,3 @@ export async function getMovieById(id) {
         console.error(error)
     }
 }
-
-getSeriesById(81797)
