@@ -46,7 +46,7 @@ export async function getExternalIDs(mediaType, mediaId) {
     } = await apiMethod({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
     if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
-        const plex_guid = await getPlexGuid(mediaType, mediaId, "TMDB");
+        const { guid: plex_guid } = await getPlexGuid(mediaType, mediaId, "TMDB");
 
         return { plex_guid, tvdb_id, imdb_id };
     }

@@ -44,8 +44,8 @@ export async function getPlexGuid(mediaType, mediaId, metadataAgent) {
 
             if (matchResponse.data.MediaContainer.size > 0) {
                 // Get details of the first media item found
-                const { guid } = matchResponse.data.MediaContainer.SearchResult[0];
-                return guid;
+                const { type, guid, name, year, summary } = matchResponse.data.MediaContainer.SearchResult[0];
+                return { type, guid, name, year, summary };
             }
         }
     } catch (error) {
@@ -54,7 +54,7 @@ export async function getPlexGuid(mediaType, mediaId, metadataAgent) {
     }
 }
 
-export async function plexSearchMetadataAgent(mediaType, mediaId) {
+export async function plexSearchMetadataAgent(mediaType, mediaId, metadataAgent) {
     try {
         const plexTypes = {
             movie: "1",
