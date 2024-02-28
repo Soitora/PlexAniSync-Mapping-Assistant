@@ -84,12 +84,7 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
     }
 
     if (metadataAgent == "TVDB") {
-        ({ mediaName, production_countries, tvdb_id, number_of_seasons } = await TVDB_getDetails(mediaType, mediaId));
-
-        const isoCodes = new Set(["US", "UK", ...production_countries.map((country) => country.iso_3166_1)]);
-        formattedTitles = await TVDB_getFormattedTitles(mediaType, mediaId, isoCodes, mediaName);
-
-        ({ plex_guid, tmdb_id, imdb_id } = await TVDB_getExternalIDs(mediaType, mediaId));
+        /* Nothing yet */
     }
 
     return { mediaName, formattedTitles, plex_guid, tvdb_id, tmdb_id, imdb_id, number_of_seasons };
