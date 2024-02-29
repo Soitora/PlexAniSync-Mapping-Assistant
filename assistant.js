@@ -1,41 +1,53 @@
-import colors from "colors";
+import chalk from "chalk";
 import pjson from "pjson";
+import inquirer from "inquirer";
 
-import { rl, answerSeries, answerMovie } from "./utils/constants.js";
-import { searchForMedia } from "./utils/search.js";
-import { validateEnvironmentVariable } from "./utils/precheck.js";
-
-validateEnvironmentVariable("TMDB_APIKEY", 32, /^[a-fA-F0-9]+$/, "please provide a proper API key.", true);
-validateEnvironmentVariable("PLEX_HOST", null, /^(?:(?:(?:\d{1,3}\.){3}\d{1,3})|(?:(?:[a-zA-Z0-9_-]+\.)*[a-zA-Z0-9_-]+))(?::\d{1,5})?$/, "please provide a proper URL.", false);
-validateEnvironmentVariable("PLEX_TOKEN", 20, null, "please provide a proper X-PLEX-TOKEN.", false);
+import { searchUsingMetadataAgent } from "./utils/search.js";
 
 function showOpening() {
     console.log("\x1Bc");
-    console.log(`TMDB Assistant for PlexAniSync `.cyan + pjson.version + `\n`);
-    console.log(`Created by ${"@Soitora".underline}`.grey);
-    console.log(`Made for contribution to ${"RickDB/PlexAniSync".underline} custom mappings\n`.grey);
-    console.log(`ℹ️ You can at any time change between searching for Movies and Series by typing the mode again.`);
+    console.log(`${chalk.cyan("PlexAniSync Mapping Assistant")} ${pjson.version} \n`);
+    console.log(chalk.grey(`Created by ${chalk.underline("@Soitora")}`));
+    console.log(chalk.grey(`Made for contribution to ${chalk.underline("RickDB/PlexAniSync-Custom-Mappings")}.\n`));
+}
+
+async function searchPrompt() {
+    const questions = [
+        {
+            type: "list",
+            name: "metadataAgent",
+            message: "Select the metadata agent you want to use:",
+            choices: [
+                { name: "🎥 The Movie Database (TMDB)", value: "tmdb" },
+                { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb" },
+            ],
+        },
+        {
+            type: "list",
+            name: "mediaType",
+            message: "Select the type of media you want to use:",
+            choices: [
+                { name: "📺 Series", value: "tv" },
+                { name: "🍿 Movies", value: "movie" },
+            ],
+        },
+        {
+            type: "confirm",
+            name: "usePlex",
+            message: "Do you wish to use the Plex integration?",
+            default: true,
+        },
+    ];
+
+    const answers = await inquirer.prompt(questions);
+
+    const metadataAgent = answers.metadataAgent;
+    const mediaType = answers.mediaType;
+
+    console.log("");
+
+    searchUsingMetadataAgent(mediaType, metadataAgent);
 }
 
 showOpening();
 searchPrompt();
-
-function searchPrompt() {
-    const handleSearch = (media, mediaType, metadataAgent) => {
-        showOpening();
-        console.log(`\nSearching for ${media} 🎥`.yellow);
-        searchForMedia(mediaType, metadataAgent);
-    };
-
-    const question = `\nDo you want to search for a ${"S".underline.cyan}eries or a ${"M".underline.cyan}ovie? `;
-    rl.question(question, (answer) => {
-        if (answerMovie.includes(answer.toLowerCase())) {
-            handleSearch("Movies", "movie", "TMDB");
-        } else if (answerSeries.includes(answer.toLowerCase())) {
-            handleSearch("Series", "tv", "TMDB");
-        } else {
-            console.log(colors.red(`Invalid answer.\n`));
-            searchPrompt();
-        }
-    });
-}

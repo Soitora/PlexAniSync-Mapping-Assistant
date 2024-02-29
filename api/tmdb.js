@@ -37,7 +37,7 @@ export async function getSeriesById(mediaId) {
 
         return { response, name, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles, seasons };
     } catch (error) {
-        console.error(error);
+        throw error;
     }
 }
 
@@ -53,68 +53,80 @@ export async function getMovieById(mediaId) {
 
         return { response, name, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles, seasons: 1 };
     } catch (error) {
-        console.error(error);
+        throw error;
     }
 }
 
 async function getExternalIDs(tmdbMethod, mediaType, mediaId) {
-    const {
-        data: { tvdb_id, imdb_id },
-    } = await tmdbMethod.getExternalIDs({ pathParameters: { [`${mediaType}_id`]: mediaId } });
+    try {
+        const {
+            data: { tvdb_id, imdb_id },
+        } = await tmdbMethod.getExternalIDs({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-    if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
-        const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "TMDB");
+        if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
+            const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "tmdb");
 
-        return { plex_guid, imdb_id, tvdb_id };
+            return { plex_guid, imdb_id, tvdb_id };
+        }
+
+        return { imdb_id, tvdb_id };
+    } catch (error) {
+        throw error;
     }
-
-    return { imdb_id, tvdb_id };
 }
 
 async function getSortedAlternativeTitles(tmdbMethod, mediaType, mediaId, mediaName, production_countries) {
-    const propertyNames = {
-        tv: "results",
-        movie: "titles",
-    };
+    try {
+        const propertyNames = {
+            tv: "results",
+            movie: "titles",
+        };
 
-    const {
-        data: { [propertyNames[mediaType]]: titles },
-    } = await tmdbMethod.getAlternativeTitles({ pathParameters: { [`${mediaType}_id`]: mediaId } });
+        const {
+            data: { [propertyNames[mediaType]]: titles },
+        } = await tmdbMethod.getAlternativeTitles({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-    // Create a map to store titles for each ISO code
-    const titlesByIsoCode = new Map();
+        // Create a map to store titles for each ISO code
+        const titlesByIsoCode = new Map();
 
-    // Iterate through titles and group them by ISO codes
-    for (const title of titles) {
-        if (title.iso_3166_1 && title.title !== mediaName) {
-            const isoCode = title.iso_3166_1;
-            if (!titlesByIsoCode.has(isoCode)) {
-                titlesByIsoCode.set(isoCode, []);
+        // Iterate through titles and group them by ISO codes
+        for (const title of titles) {
+            if (title.iso_3166_1 && title.title !== mediaName) {
+                const isoCode = title.iso_3166_1;
+                if (!titlesByIsoCode.has(isoCode)) {
+                    titlesByIsoCode.set(isoCode, []);
+                }
+                titlesByIsoCode.get(isoCode).push(title.title);
             }
-            titlesByIsoCode.get(isoCode).push(title.title);
         }
-    }
 
-    // Create a list to hold all sorted titles
-    const sortedAlternativeTitles = [];
+        // Create a list to hold all sorted titles
+        const sortedAlternativeTitles = [];
 
-    // Define the desired order of ISO codes (US, UK, then production_countries)
-    const desiredIsoCodes = ["US", "UK", ...production_countries.map((country) => country.iso_3166_1)];
+        // Define the desired order of ISO codes (US, UK, then production_countries)
+        const desiredIsoCodes = ["US", "UK", ...production_countries.map((country) => country.iso_3166_1)];
 
-    // Iterate through the desired ISO codes and add sorted titles
-    for (const isoCode of desiredIsoCodes) {
-        if (titlesByIsoCode.has(isoCode)) {
-            sortedAlternativeTitles.push(...titlesByIsoCode.get(isoCode).sort());
+        // Iterate through the desired ISO codes and add sorted titles
+        for (const isoCode of desiredIsoCodes) {
+            if (titlesByIsoCode.has(isoCode)) {
+                sortedAlternativeTitles.push(...titlesByIsoCode.get(isoCode).sort());
+            }
         }
-    }
 
-    return sortedAlternativeTitles;
+        return sortedAlternativeTitles;
+    } catch (error) {
+        throw error;
+    }
 }
 
 async function getAmountOfSeasons(number_of_seasons) {
-    let amountOfSeasons = 0;
+    try {
+        let amountOfSeasons = 0;
 
-    amountOfSeasons += number_of_seasons;
+        amountOfSeasons += number_of_seasons;
 
-    return amountOfSeasons;
+        return amountOfSeasons;
+    } catch (error) {
+        throw error;
+    }
 }

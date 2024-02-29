@@ -1,28 +1,31 @@
-import colors from "colors";
+import chalk from "chalk";
 import yaml from "js-yaml";
+import inquirer from "inquirer";
 import clipboardy from "clipboardy";
 
-import { rl, answerSeries, answerMovie } from "./constants.js";
 import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
 
-export async function searchForMedia(mediaType, metadataAgent) {
-    const prompt = `\nEnter a ${metadataAgent + " ID:".bold} `;
+export async function searchUsingMetadataAgent(mediaType, metadataAgent) {
+    const answer = await inquirer.prompt({
+        type: "input",
+        name: "mediaId",
+        message: `Search using a ${chalk.yellowBright(metadataAgent.toUpperCase())} ID`,
+        prefix: mediaType === "tv" ? "📺" : "🍿",
+        suffix: ":",
+        validate: (input) => {
+            const value = parseInt(input, 10);
 
-    rl.question(prompt.cyan, async (mediaId) => {
-        if (answerMovie.includes(mediaId.toLowerCase())) {
-            console.log(`\nSearching for Movies 🎥`.yellow);
-            searchForMedia("movie", metadataAgent);
-        } else if (answerSeries.includes(mediaId.toLowerCase())) {
-            console.log(`\nSearching for Series 📺`.yellow);
-            searchForMedia("tv", metadataAgent);
-        } else {
-            await handleSearch(mediaType, mediaId, metadataAgent);
-        }
+            if (isNaN(value) || value <= 0) {
+                return "Please enter a valid ID.";
+            }
+
+            return true;
+        },
     });
-}
 
-async function handleSearch(mediaType, mediaId, metadataAgent) {
+    const mediaId = parseInt(answer.mediaId.trim());
+
     try {
         const { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
 
@@ -39,11 +42,11 @@ async function handleSearch(mediaType, mediaId, metadataAgent) {
 
         const yamlOutput = formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType });
 
-        console.log(`Results copied to clipboard!\n`.grey);
-        console.log(yamlOutput.green);
+        console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard!")}\n`);
+        console.log(chalk.yellowBright(yamlOutput));
 
         if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
-            console.log(`Your ${"PLEX_HOST".red} or ${"PLEX_TOKEN".red} seems to be missing, ${"guid".blue} will be missing from the results.`);
+            console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
         }
 
         clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
@@ -51,48 +54,54 @@ async function handleSearch(mediaType, mediaId, metadataAgent) {
         handleSearchError(error, mediaType, metadataAgent);
     }
 
-    searchForMedia(mediaType, metadataAgent);
+    searchUsingMetadataAgent(mediaType, metadataAgent);
 }
 
 function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType }) {
-    const yamlOutput = yaml.dump(data, {
-        quotingType: `"`,
-        forceQuotes: true,
-        indent: 2,
-    });
+    try {
+        const yamlOutput = yaml.dump(data, {
+            quotingType: `"`,
+            forceQuotes: true,
+            indent: 2,
+        });
 
-    const url_IMDB = imdb_id ? `\n  # imdb: https://www.imdb.com/title/${imdb_id}/` : "";
-    const url_TMDB = tmdb_id ? `\n  # tmdb: https://www.themoviedb.org/${mediaType}/${tmdb_id}` : "";
-    const url_TVDB = tvdb_id ? `\n  # tvdb: https://www.thetvdb.com/dereferrer/${mediaType === "tv" ? "series" : "movie"}/${tvdb_id}` : "";
-    const guid_PLEX = plex_guid ? `  # guid: ${plex_guid}\n` : "";
+        const url_IMDB = imdb_id ? `\n  # imdb: https://www.imdb.com/title/${imdb_id}/` : "";
+        const url_TMDB = tmdb_id ? `\n  # tmdb: https://www.themoviedb.org/${mediaType}/${tmdb_id}` : "";
+        const url_TVDB = tvdb_id ? `\n  # tvdb: https://www.thetvdb.com/dereferrer/${mediaType === "tv" ? "series" : "movie"}/${tvdb_id}` : "";
+        const guid_PLEX = plex_guid ? `  # guid: ${plex_guid}\n` : "";
 
-    const titleRegex = /^(\s*- title:.*)$/m;
-    const seasonsRegex = /^(\s*seasons:.*)$/m;
+        const titleRegex = /^(\s*- title:.*)$/m;
+        const seasonsRegex = /^(\s*seasons:.*)$/m;
 
-    return yamlOutput.replace(titleRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`).replace(seasonsRegex, `${guid_PLEX}$1`);
+        return yamlOutput.replace(titleRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`).replace(seasonsRegex, `${guid_PLEX}$1`);
+    } catch (error) {
+        throw error;
+    }
 }
 
 async function metadataHandler(mediaType, mediaId, metadataAgent) {
     let title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons;
 
-    if (metadataAgent == "TMDB") {
-        ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles: synonyms, seasons } = await TMDB_getEntryByTypeAndId(mediaType, mediaId));
-    }
+    try {
+        if (metadataAgent == "tmdb") {
+            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles: synonyms, seasons } = await TMDB_getEntryByTypeAndId(mediaType, mediaId));
+        }
 
-    if (metadataAgent == "TVDB") {
-        ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: synonyms, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
-    }
+        if (metadataAgent == "tvdb") {
+            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: synonyms, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
+        }
 
-    return { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
+        return { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
+    } catch (error) {
+        throw error;
+    }
 }
 
-function handleSearchError(error, mediaType, metadataAgent) {
+function handleSearchError(error, mediaType) {
     if (error.errorCode === 404) {
-        console.error(`The requested ${mediaType} does not exist. Error: ${error.message}`.red);
+        console.error(chalk.red(`❌ The requested ${mediaType === "tv" ? "series" : "movie"} does not exist.\n`));
     } else {
-        console.error(`An error occurred while handling ${mediaType} search: ${error.message}`.red);
-        console.error(error.stack);
+        console.error(chalk.red(`❌ An error occurred while handling ${mediaType} search: ${error.message}`));
+        console.error(error.stack + "\n");
     }
-
-    searchForMedia(mediaType, metadataAgent);
 }

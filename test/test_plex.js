@@ -11,13 +11,13 @@ dotenv.config();
 if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
     describe("Plex API", () => {
         describe("TV Series", () => {
-            describe("TMDB", () => {
+            describe("tmdb", () => {
                 it("should get series information by TMDB id", async () => {
                     const seriesId = 37854;
                     const seriesName = "One Piece";
 
                     try {
-                        const { name } = await getPlexMatch("tv", seriesId, "TMDB");
+                        const { name } = await getPlexMatch("tv", seriesId, "tmdb");
 
                         assert.strictEqual(name, seriesName, "Series names should match");
                     } catch (error) {
@@ -26,13 +26,13 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                 });
             });
 
-            describe("TVDB", () => {
+            describe("tvdb", () => {
                 it("should get series information by TVDB id", async () => {
                     const seriesId = 81797;
                     const seriesName = "One Piece";
 
                     try {
-                        const { name } = await getPlexMatch("tv", seriesId, "TVDB");
+                        const { name } = await getPlexMatch("tv", seriesId, "tvdb");
 
                         assert.strictEqual(name, seriesName, "Series names should match");
                     } catch (error) {
@@ -43,13 +43,13 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
         });
 
         describe("Movies", () => {
-            describe("TMDB", () => {
+            describe("tmdb", () => {
                 it("should get movie information by TMDB id", async () => {
                     const movieId = 128;
                     const movieName = "Princess Mononoke";
 
                     try {
-                        const { name } = await getPlexMatch("movie", movieId, "TMDB");
+                        const { name } = await getPlexMatch("movie", movieId, "tmdb");
 
                         assert.strictEqual(name, movieName, "Movie names should match");
                     } catch (error) {

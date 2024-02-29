@@ -1,5 +1,6 @@
 import colors from "colors";
 import pjson from "pjson";
+import inquirer from "inquirer";
 
 import { rl } from "./utils/constants.js";
 import { getPlexMatch } from "./api/plex.js";
@@ -23,32 +24,41 @@ function searchPrompt() {
         showOpening();
         console.log(`\nSearching for ${media.gray} ${mediaType === "movie" ? "🎥" : "📺"}`.yellow);
 
-        if (metadataAgent == "TMDB") {
+        if (metadataAgent == "tmdb") {
             searchPromptTMDB(mediaType);
-        } else if (metadataAgent == "TVDB") {
+        } else if (metadataAgent == "tvdb") {
             searchPromptTVDB(mediaType);
         }
     };
 
-    const question = `\nChoose your option:\n
-    ${"1".underline.cyan}. Search for ${"Series".magenta} on Plex using ${"TMDB".blue}\n
-    ${"2".underline.cyan}. Search for ${"Movies".yellow} on Plex using ${"TMDB".blue}\n
-    ${"3".underline.cyan}. Search for ${"Series".magenta} on Plex using ${"TVDB".green}\n
-    ${"4".underline.cyan}. Search for ${"Movies".yellow} on Plex using ${"TVDB".green}\n\n
-    Input: `;
-    rl.question(question, (answer) => {
+    const questions = [
+        {
+            type: "list",
+            name: "option",
+            message: "Choose your option:",
+            choices: [
+                { name: "Search for Series on Plex using TMDB", value: "1" },
+                { name: "Search for Movies on Plex using TMDB", value: "2" },
+                { name: "Search for Series on Plex using TVDB", value: "3" },
+                { name: "Search for Movies on Plex using TVDB", value: "4" },
+            ],
+        },
+    ];
+
+    inquirer.prompt(questions).then((answers) => {
+        const answer = answers.option;
         switch (answer) {
             case "1":
-                handleSearch("Series", "tv", "TMDB");
+                handleSearch("Series", "tv", "tmdb");
                 break;
             case "2":
-                handleSearch("Movies", "movie", "TMDB");
+                handleSearch("Movies", "movie", "tmdb");
                 break;
             case "3":
-                handleSearch("Series", "tv", "TVDB");
+                handleSearch("Series", "tv", "tvdb");
                 break;
             case "4":
-                handleSearch("Movies", "movie", "TVDB");
+                handleSearch("Movies", "movie", "tvdb");
                 break;
             default:
                 console.log(colors.red(`Invalid answer.\n`));
@@ -63,7 +73,7 @@ function searchPromptTMDB(mediaType) {
 
     rl.question(prompt.cyan, async (mediaId) => {
         try {
-            const { response } = await getPlexMatch(mediaType, mediaId, "TMDB");
+            const { response } = await getPlexMatch(mediaType, mediaId, "tmdb");
             console.log(response);
         } catch (error) {
             if (error.errorCode === 404) {
@@ -83,7 +93,7 @@ function searchPromptTVDB(mediaType) {
     const prompt = `\nEnter a ${"TVDB ID:".bold} `;
     rl.question(prompt.cyan, async (mediaId) => {
         try {
-            const { response } = await getPlexMatch(mediaType, mediaId, "TVDB");
+            const { response } = await getPlexMatch(mediaType, mediaId, "tvdb");
             console.log(response);
         } catch (error) {
             if (error.errorCode === 404) {

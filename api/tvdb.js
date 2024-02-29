@@ -66,7 +66,7 @@ async function getRemoteIDs(remoteIds, mediaType, mediaId) {
     });
 
     if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
-        const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "TVDB");
+        const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "tvdb");
 
         return { plex_guid, imdb_id, tmdb_id };
     }
