@@ -6,26 +6,50 @@ import clipboardy from "clipboardy";
 import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
 
-export async function searchUsingMetadataAgent(mediaType, metadataAgent) {
-    const answer = await inquirer.prompt({
-        type: "input",
-        name: "mediaId",
-        message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
-        prefix: mediaType === "tv" ? "📺" : "🍿",
-        suffix: ":",
-        validate: (input) => {
-            const value = parseInt(input, 10);
+export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults) {
+    try {
+        const answer = await inquirer.prompt({
+            type: "input",
+            name: "mediaId",
+            message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
+            prefix: mediaType === "tv" ? "📺" : "🍿",
+            suffix: ":",
+            validate: (input) => {
+                const value = parseInt(input, 10);
 
-            if (isNaN(value) || value <= 0) {
-                return "Please enter a valid ID.";
-            }
+                if (isNaN(value) || value <= 0) {
+                    return "Please enter a valid ID.";
+                }
 
-            return true;
-        },
-    });
+                return true;
+            },
+        });
 
-    const mediaId = parseInt(answer.mediaId.trim());
+        const mediaId = parseInt(answer.mediaId.trim());
+        const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, copyResults, saveResults);
 
+        if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
+            console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
+        }
+
+        if (copyResults !== false && yamlOutput !== "undefined") {
+            clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
+        }
+
+        if (saveResults && yamlOutput !== "undefined") {
+            //Nothing yet
+        }
+
+        console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard!")}\n`);
+        console.log(chalk.yellowBright(yamlOutput));
+    } catch (error) {
+        handleSearchError(error, mediaType, metadataAgent);
+    }
+
+    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults);
+}
+
+export async function mediaSearch(mediaType, metadataAgent, mediaId) {
     try {
         const { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
 
@@ -42,19 +66,10 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent) {
 
         const yamlOutput = formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType });
 
-        console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard!")}\n`);
-        console.log(chalk.yellowBright(yamlOutput));
-
-        if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
-            console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
-        }
-
-        clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
+        return yamlOutput;
     } catch (error) {
         handleSearchError(error, mediaType, metadataAgent);
     }
-
-    searchUsingMetadataAgent(mediaType, metadataAgent);
 }
 
 function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType }) {
@@ -97,11 +112,11 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
     }
 }
 
-function handleSearchError(error, mediaType) {
+function handleSearchError(error, mediaType, metadataAgent) {
     if (error.errorCode === 404 || error.code == "ERR_NON_2XX_3XX_RESPONSE") {
         console.error(chalk.redBright(`❌ The requested ${mediaType === "tv" ? "series" : "movie"} could not be found, or does not exist.\n`));
     } else {
-        console.error(chalk.redBright(`❌ An error occurred while handling ${mediaType} search: ${error.message}`));
+        console.error(chalk.redBright(`❌ An error occurred while handling ${mediaType} search for ${metadataAgent}: ${error.message}`));
         console.error(error.stack + "\n");
     }
 }

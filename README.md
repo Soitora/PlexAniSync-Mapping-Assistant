@@ -27,24 +27,28 @@ If not, you can download and install them from [Node.js official website](https:
 
 ### Step 2: Clone the Repository
 Clone the repository to your local machine using the following command:
+
 ```bash
 git clone https://github.com/Soitora/PlexAniSync-Mapping-Assistant.git
 ```
 
 ### Step 3: Navigate to Project Directory
 Change into the project directory:
+
 ```bash
 cd PlexAniSync-Mapping-Assistant
 ```
 
 ### Step 4: Install Dependencies
 Run the following command to install project dependencies:
+
 ```bash
 npm install
 ```
 
 ### Step 5: Create .env file
 Copy the provided `.env.example` file to a new file named `.env`:
+
 ```bash
 cp .env.example .env
 ```
@@ -63,23 +67,35 @@ Open the `.env` file in a text editor and fill in the environment variables with
 
 ### Step 7: Run the Assistant
 You can now run the mapping assistant using the following command:
+
 ```bash
 npm run assistant
 ```
 
 ### Step 8: Debugging (Optional)
 If you need to debug and test towards API directly, you can use the following command:
+
 ```bash
 npm run debug
 ```
 
-### Step 9: Testing (Optional)
+### Step 9: Auto-scraping (Optional)
+If you would prefer to input a large number of IDs, and have the program output a file for you, you can do it using this script.
+
+Make sure that you fill `batch\input.txt` with a newline-seperated list of IDs.
+
+```bash
+npm run auto
+```
+
+### Step 10: Testing (Optional)
 To run tests to make sure the API is spitting out the correct information, use the following command:
+
 ```bash
 npm test
 ```
-</div>
 
+</div>
 <div align="center">
 
 ## Scripts

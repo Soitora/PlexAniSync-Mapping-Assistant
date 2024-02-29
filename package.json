@@ -1,12 +1,13 @@
 {
     "name": "plexanisync-mapping-assistant",
-    "version": "2.0.0-rc5",
+    "version": "2.0.0-rc6",
     "description": "PlexAniSync Mapping Assistant",
     "main": "assistant.js",
     "type": "module",
     "scripts": {
         "assistant": "node assistant.js",
         "debug": "node debug.js",
+        "auto": "node auto-scraper.js",
         "test": "mocha"
     },
     "repository": {
