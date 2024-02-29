@@ -8,20 +8,28 @@ dotenv.config();
 const tmdb = new MovieDB(process.env.TMDB_APIKEY);
 
 export async function getEntryByTypeAndId(mediaType, mediaId) {
-    switch (mediaType) {
-        case "tv":
-            return getSeriesById(mediaId);
-        case "movie":
-            return getMovieById(mediaId);
-        default:
-            throw new Error(`Unsupported mediaType: ${mediaType}`);
+    try {
+        switch (mediaType) {
+            case "tv":
+                return getSeriesById(mediaId);
+            case "movie":
+                return getMovieById(mediaId);
+            default:
+                throw new Error(`Unsupported mediaType: ${mediaType}`);
+        }
+    } catch (error) {
+        throw error;
     }
 }
 
 async function fetchDetailsData(tmdbMethod, mediaType, mediaId) {
-    const response = await tmdbMethod.getDetails({ pathParameters: { [`${mediaType}_id`]: mediaId } });
+    try {
+        const response = await tmdbMethod.getDetails({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-    return response;
+        return response;
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function getSeriesById(mediaId) {

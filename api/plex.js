@@ -44,14 +44,13 @@ export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
 
             if (matchResponse.data.MediaContainer.size > 0) {
                 // Get details of the first media item found
-                const response = matchResponse.data.MediaContainer.SearchResult[0]
+                const response = matchResponse.data.MediaContainer.SearchResult[0];
                 const { type, guid, name, year, summary } = response;
 
                 return { response, type, guid, name, year, summary };
             }
         }
     } catch (error) {
-        console.error("Error:", error.message);
-        console.error("Stack Trace:", error.stack);
+        throw error;
     }
 }
