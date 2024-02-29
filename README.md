@@ -1,4 +1,4 @@
-# TMDB-PAS-Assistant
+# PlexAniSync-Mapping-Assistant
 TMDB Assistant for [PlexAniSync](https://github.com/RickDB/PlexAniSync/), specifically, for contribution to the [custom mappings](https://github.com/RickDB/PlexAniSync-Custom-Mappings) project.
 
 ![image](https://user-images.githubusercontent.com/10836780/230778146-3611f42c-6e2e-4d73-9f2f-d360d211499e.png)
@@ -6,11 +6,11 @@ TMDB Assistant for [PlexAniSync](https://github.com/RickDB/PlexAniSync/), specif
 ## Installation
 1. Clone the repository or download the source code
 ```bash
-git clone https://github.com/Soitora/TMDB-PAS-Assistant.git
+git clone https://github.com/Soitora/PlexAniSync-Mapping-Assistant.git
 ```
 1. Install the dependencies
 ```bash
-cd TMDB-PAS-Assistant
+cd PlexAniSync-Mapping-Assistant
 npm install
 ```
 
@@ -37,4 +37,4 @@ npm run assistant
 This project is licensed under the MPL-2.0 License - see the [LICENSE](./LICENSE) file for details.
 
 ## Issues
-If you have any issues, please open a new issue in the [Issues](https://github.com/Soitora/TMDB-PAS-Assistant/issues) section of this repository.
+If you have any issues, please open a new issue in the [Issues](https://github.com/Soitora/PlexAniSync-Mapping-Assistant/issues) section of this repository.
