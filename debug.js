@@ -47,6 +47,26 @@ async function searchPrompt() {
     debugUsingMetadataAgent(mediaType, metadataAgent);
 }
 
+async function fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId) {
+    try {
+        if (metadataAgent === "tmdb") {
+            const pathParameters = { [mediaType === "tv" ? "tv_id" : "movie_id"]: mediaId };
+            const response = await tmdb[mediaType].getDetails({ pathParameters });
+            console.log(response.data);
+        } else if (metadataAgent === "tvdb") {
+            const idKey = mediaType === "tv" ? "series" : "movies";
+            const response = await tvdb[idKey].extended({ id: mediaId });
+            console.log(response.data);
+        }
+        console.log("");
+        debugUsingMetadataAgent(mediaType, metadataAgent);
+    } catch (error) {
+        console.error(error);
+        console.log("");
+        debugUsingMetadataAgent(mediaType, metadataAgent);
+    }
+}
+
 async function debugUsingMetadataAgent(mediaType, metadataAgent) {
     const answer = await inquirer.prompt({
         type: "input",
@@ -67,59 +87,10 @@ async function debugUsingMetadataAgent(mediaType, metadataAgent) {
 
     const mediaId = parseInt(answer.mediaId.trim());
 
-    if (metadataAgent == "tmdb") {
-        const tmdb = TMDB_importApi();
+    const tmdb = TMDB_importApi();
+    const tvdb = TVDB_importApi();
 
-        if (mediaType == "tv") {
-            try {
-                const response = await tmdb.tv.getDetails({ pathParameters: { tv_id: mediaId } });
-                console.log(response.data);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            } catch (error) {
-                console.error(error);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            }
-        } else if (mediaType == "movie") {
-            try {
-                const response = await tmdb.movie.getDetails({ pathParameters: { movie_id: mediaId } });
-                console.log(response.data);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            } catch (error) {
-                console.error(error);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            }
-        }
-    } else if (metadataAgent == "tvdb") {
-        const tvdb = TVDB_importApi();
-
-        if (mediaType == "tv") {
-            try {
-                const response = await tvdb.series.extended({ id: mediaId });
-                console.log(response.data);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            } catch (error) {
-                console.error(error);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            }
-        } else if (mediaType == "movie") {
-            try {
-                const response = await tvdb.movies.extended({ id: mediaId });
-                console.log(response.data);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            } catch (error) {
-                console.error(error);
-                console.log("");
-                debugUsingMetadataAgent(mediaType, metadataAgent);
-            }
-        }
-    }
+    await fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId);
 }
 
 showOpening();
