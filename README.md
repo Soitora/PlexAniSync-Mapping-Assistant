@@ -18,6 +18,7 @@ TheMovieDB/TheTVDB Mapping Assistant for [PlexAniSync](https://github.com/RickDB
 
 ## Guide
 
+</div>
 <div align="left">
 
 ### Step 1: Prerequisites
@@ -51,10 +52,14 @@ cp .env.example .env
 ### Step 6: Edit .env File
 Open the `.env` file in a text editor and fill in the environment variables with appropriate values.
 
+</div>
+
 > [!NOTE]
 >- You do not need both `TMDB_APIKEY` and `TVDB_APIKEY` to run this, only one is required at minimum.
 >- You do not need to tweak/add `DUMMY_QUERY` unless that doesn't work for you.
 >- Both `PLEX_TOKEN` and `PLEX_API` is also optional, but highly recommended for `guid` in the output.
+
+<div align="left">
 
 ### Step 7: Run the Assistant
 You can now run the mapping assistant using the following command:
@@ -74,6 +79,8 @@ To run tests to make sure the API is spitting out the correct information, use t
 npm test
 ```
 </div>
+
+<div align="center">
 
 ## Scripts
 
