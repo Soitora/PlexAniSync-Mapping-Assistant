@@ -7,44 +7,60 @@ const PLEX_HOST = "http://" + process.env.PLEX_HOST || "http://127.0.0.1:32400";
 const PLEX_TOKEN = process.env.PLEX_TOKEN;
 const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
 
-export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
+const plexTypes = {
+    movie: "1",
+    tv: "2",
+};
+
+const plexAgents = {
+    tv: "tv.plex.agents.series",
+    movie: "tv.plex.agents.movie",
+};
+
+async function makePlexRequest(endpoint, params) {
     try {
-        const plexTypes = {
-            movie: "1",
-            tv: "2",
-        };
-
-        const plexType = plexTypes[mediaType];
-
-        // Make a request to search for a media item using a dummy query
-        const searchResponse = await axios.get(`${PLEX_HOST}/search?type=${plexType}&query=${DUMMY_QUERY}`, {
+        const response = await axios.get(`${PLEX_HOST}/${endpoint}`, {
             headers: {
                 "X-Plex-Token": PLEX_TOKEN,
             },
+            params,
         });
 
-        // Check if any media items were found
-        if (searchResponse.data.MediaContainer.size > 0) {
-            // Get the ratingKey of the first media item found
-            const { ratingKey } = searchResponse.data.MediaContainer.Metadata[0];
+        return response.data.MediaContainer;
+    } catch (error) {
+        throw error;
+    }
+}
 
-            // Determine the Plex agent based on media type
-            const plexAgents = {
-                tv: "tv.plex.agents.series",
-                movie: "tv.plex.agents.movie",
-            };
-            const plexAgent = plexAgents[mediaType];
+async function searchPlexForMedia(type, query) {
+    const params = {
+        type: plexTypes[type],
+        query: query || DUMMY_QUERY,
+    };
 
-            // Make a request to search for a media item using TMDB, TVDB, or IMDB
-            const matchResponse = await axios.get(`${PLEX_HOST}/library/metadata/${ratingKey}/matches?manual=1&title=${metadataAgent}-${mediaId}&agent=${plexAgent}`, {
-                headers: {
-                    "X-Plex-Token": PLEX_TOKEN,
-                },
-            });
+    return await makePlexRequest("search", params);
+}
 
-            if (matchResponse.data.MediaContainer.size > 0) {
-                // Get details of the first media item found
-                const response = matchResponse.data.MediaContainer.SearchResult[0];
+async function getMatchesFromPlex(ratingKey, metadataAgent, mediaId, type) {
+    const params = {
+        manual: 1,
+        title: `${metadataAgent}-${mediaId}`,
+        agent: plexAgents[type],
+    };
+
+    return await makePlexRequest(`library/metadata/${ratingKey}/matches`, params);
+}
+
+export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
+    try {
+        const searchResponse = await searchPlexForMedia(mediaType);
+
+        if (searchResponse.size > 0) {
+            const ratingKey = searchResponse.Metadata[0].ratingKey;
+            const matchResponse = await getMatchesFromPlex(ratingKey, metadataAgent, mediaId, mediaType);
+
+            if (matchResponse.size > 0) {
+                const response = matchResponse.SearchResult[0];
                 const { type, guid, name, year, summary } = response;
 
                 return { response, type, guid, name, year, summary };

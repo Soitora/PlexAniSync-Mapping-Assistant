@@ -9,7 +9,9 @@ const validateEnvironmentVariable = (variable, expectedLength, regexTest, errorM
     }
 
     if (expectedLength && envValue && envValue.length !== expectedLength) {
-        console.log(`Your ${chalk.redBright(variable)} seems to be too short.\nExpected ${chalk.green(expectedLength.toString())} characters, you had ${chalk.redBright(envValue.length)}.`);
+        console.log(
+            `Your ${chalk.redBright(variable)} seems to be too short.\nExpected ${chalk.green(expectedLength.toString())} characters, you had ${chalk.redBright(envValue.length)}.`
+        );
         if (shouldExit) process.exit(1);
     }
 

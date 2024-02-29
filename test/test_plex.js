@@ -30,11 +30,13 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                 it("should get series information by TVDB id", async () => {
                     const seriesId = 81797;
                     const seriesName = "One Piece";
+                    const seriesGuid = "plex://show/5d9c084fec357c001f9ab4d8";
 
                     try {
-                        const { name } = await getPlexMatch("tv", seriesId, "tvdb");
+                        const { name, guid } = await getPlexMatch("tv", seriesId, "tvdb");
 
                         assert.strictEqual(name, seriesName, "Series names should match");
+                        assert.strictEqual(guid, seriesGuid, "Series guid should match");
                     } catch (error) {
                         throw error;
                     }
@@ -47,11 +49,13 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
                 it("should get movie information by TMDB id", async () => {
                     const movieId = 128;
                     const movieName = "Princess Mononoke";
+                    const movieGuid = "plex://movie/5d7768246f4521001ea988b4";
 
                     try {
-                        const { name } = await getPlexMatch("movie", movieId, "tmdb");
+                        const { name, guid } = await getPlexMatch("movie", movieId, "tmdb");
 
                         assert.strictEqual(name, movieName, "Movie names should match");
+                        assert.strictEqual(guid, movieGuid, "Movie guid should match");
                     } catch (error) {
                         throw error;
                     }
