@@ -1,5 +1,5 @@
+import chalk from "chalk";
 import * as dotenv from "dotenv";
-import colors from "colors";
 
 import { describe, it } from "mocha";
 import { assert } from "chai";
@@ -43,5 +43,5 @@ if (process.env.TVDB_APIKEY) {
         });
     });
 } else {
-    console.warn(`Skipping TVDB tests because ${"TVDB_APIKEY".red} is missing.`);
+    console.warn(`Skipping TVDB tests because ${chalk.redBright("TVDB_APIKEY")} is missing.`);
 }

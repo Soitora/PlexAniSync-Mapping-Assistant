@@ -1,5 +1,5 @@
+import chalk from "chalk";
 import * as dotenv from "dotenv";
-import colors from "colors";
 
 import { describe, it } from "mocha";
 import { assert } from "chai";
@@ -43,5 +43,5 @@ if (process.env.TMDB_APIKEY) {
         });
     });
 } else {
-    console.warn(`Skipping TMDB tests because ${"TMDB_APIKEY".red} is missing.`);
+    console.warn(`Skipping TMDB tests because ${chalk.redBright("TMDB_APIKEY")} is missing.`);
 }

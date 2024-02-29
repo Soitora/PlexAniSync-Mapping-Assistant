@@ -6,10 +6,14 @@ import { searchUsingMetadataAgent } from "./utils/search.js";
 
 function showOpening() {
     console.log("\x1Bc");
-    console.log(`${chalk.cyan("PlexAniSync Mapping Assistant")} ${pjson.version} \n`);
-    console.log(chalk.grey(`Created by ${chalk.underline("@Soitora")}`));
-    console.log(chalk.grey(`Made for contribution to ${chalk.underline("RickDB/PlexAniSync-Custom-Mappings")}.\n`));
+    console.log(`${chalk.cyan("  PlexAniSync Mapping Assistant")} ${pjson.version} \n`);
+    console.log(chalk.grey(`  Created by ${chalk.bold("@Soitora")}`));
+    console.log(chalk.grey(`  Made for contribution to: ${chalk.bold("https://github.com/RickDB/PlexAniSync-Custom-Mappings")}`));
+    console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
 }
+
+const hasTokenTmdb = process.env.TMDB_APIKEY;
+const hasTokenTvdb = process.env.TVDB_APIKEY;
 
 async function searchPrompt() {
     const questions = [
@@ -18,8 +22,8 @@ async function searchPrompt() {
             name: "metadataAgent",
             message: "Select the metadata agent you want to use:",
             choices: [
-                { name: "🎥 The Movie Database (TMDB)", value: "tmdb" },
-                { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb" },
+                { name: "🎥 The Movie Database (TMDB)", value: "tmdb", disabled: hasTokenTmdb ? false : chalk.redBright("Your TMDB_APIKEY is missing") },
+                { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
             ],
         },
         {
@@ -30,12 +34,6 @@ async function searchPrompt() {
                 { name: "📺 Series", value: "tv" },
                 { name: "🍿 Movies", value: "movie" },
             ],
-        },
-        {
-            type: "confirm",
-            name: "usePlex",
-            message: "Do you wish to use the Plex integration?",
-            default: true,
         },
     ];
 

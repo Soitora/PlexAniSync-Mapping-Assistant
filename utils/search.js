@@ -10,7 +10,7 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent) {
     const answer = await inquirer.prompt({
         type: "input",
         name: "mediaId",
-        message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
+        message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
         prefix: mediaType === "tv" ? "📺" : "🍿",
         suffix: ":",
         validate: (input) => {
@@ -99,9 +99,9 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
 
 function handleSearchError(error, mediaType) {
     if (error.errorCode === 404 || error.code == "ERR_NON_2XX_3XX_RESPONSE") {
-        console.error(chalk.red(`❌ The requested ${mediaType === "tv" ? "series" : "movie"} could not be found, or does not exist.\n`));
+        console.error(chalk.redBright(`❌ The requested ${mediaType === "tv" ? "series" : "movie"} could not be found, or does not exist.\n`));
     } else {
-        console.error(chalk.red(`❌ An error occurred while handling ${mediaType} search: ${error.message}`));
+        console.error(chalk.redBright(`❌ An error occurred while handling ${mediaType} search: ${error.message}`));
         console.error(error.stack + "\n");
     }
 }

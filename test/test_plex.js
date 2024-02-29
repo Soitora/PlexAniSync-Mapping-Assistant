@@ -1,5 +1,5 @@
+import chalk from "chalk";
 import * as dotenv from "dotenv";
-import colors from "colors";
 
 import { describe, it } from "mocha";
 import { assert } from "chai";
@@ -60,6 +60,6 @@ if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
         });
     });
 } else {
-    if (!process.env.PLEX_HOST) console.warn(`Skipping Plex tests because ${"PLEX_HOST".red} is missing.`);
-    if (!process.env.PLEX_TOKEN) console.warn(`Skipping Plex tests because ${"PLEX_TOKEN".red} is missing.`);
+    if (!process.env.PLEX_HOST) console.warn(`Skipping Plex tests because ${chalk.redBright("PLEX_HOST")} is missing.`);
+    if (!process.env.PLEX_TOKEN) console.warn(`Skipping Plex tests because ${chalk.redBright("PLEX_TOKEN")} is missing.`);
 }

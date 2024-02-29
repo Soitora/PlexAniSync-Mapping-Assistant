@@ -5,7 +5,10 @@ import { getPlexMatch } from "./plex.js";
 
 dotenv.config();
 
-const tmdb = new MovieDB(process.env.TMDB_APIKEY);
+export function importApi() {
+    const tmdb = new MovieDB(process.env.TMDB_APIKEY);
+    return tmdb;
+}
 
 export async function getEntryByTypeAndId(mediaType, mediaId) {
     try {
@@ -33,6 +36,8 @@ async function fetchDetailsData(tmdbMethod, mediaType, mediaId) {
 }
 
 export async function getSeriesById(mediaId) {
+    const tmdb = importApi();
+
     try {
         const mediaType = "tv";
 
@@ -50,6 +55,8 @@ export async function getSeriesById(mediaId) {
 }
 
 export async function getMovieById(mediaId) {
+    const tmdb = importApi();
+
     try {
         const mediaType = "movie";
 

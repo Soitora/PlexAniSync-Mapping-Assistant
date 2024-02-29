@@ -5,7 +5,10 @@ import { getPlexMatch } from "./plex.js";
 
 dotenv.config();
 
-const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY });
+export function importApi() {
+    const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY });
+    return tvdb;
+}
 
 export async function getEntryByTypeAndId(mediaType, mediaId) {
     try {
@@ -34,6 +37,8 @@ async function fetchExtendedData(tvdbMethod, mediaId) {
 }
 
 export async function getSeriesById(mediaId) {
+    const tvdb = importApi();
+
     try {
         const { response, name } = await fetchExtendedData(tvdb.series, mediaId);
 
@@ -49,6 +54,8 @@ export async function getSeriesById(mediaId) {
 }
 
 export async function getMovieById(mediaId) {
+    const tvdb = importApi();
+
     try {
         const { response, name } = await fetchExtendedData(tvdb.movies, mediaId);
 
