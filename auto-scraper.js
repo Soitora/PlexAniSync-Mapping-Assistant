@@ -87,6 +87,9 @@ async function processFile(mediaType, metadataAgent) {
         for (let i = 0; i < linesToProcess.length; i++) {
             const mediaId = linesToProcess[i];
 
+            // Process each line with a 500ms delay
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
             try {
                 const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, false, false);
 
