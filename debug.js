@@ -4,6 +4,7 @@ import inquirer from "inquirer";
 
 import { importApi as TMDB_importApi } from "./api/tmdb.js";
 import { importApi as TVDB_importApi } from "./api/tvdb.js";
+import { getPlexMatch } from "./api/plex.js";
 
 function showOpening() {
     console.log("\x1Bc");
@@ -15,6 +16,7 @@ function showOpening() {
 
 const hasTokenTmdb = process.env.TMDB_APIKEY;
 const hasTokenTvdb = process.env.TVDB_APIKEY;
+const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
 
 async function searchPrompt() {
     const questions = [
@@ -25,6 +27,7 @@ async function searchPrompt() {
             choices: [
                 { name: "🎥 The Movie Database (TMDB)", value: "tmdb", disabled: hasTokenTmdb ? false : chalk.redBright("Your TMDB_APIKEY is missing") },
                 { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
+                { name: "🎥 Plex.tv (PLEX)", value: "plex", disabled: hasTokenPlex ? false : chalk.redBright("Your PLEX_HOST or PLEX_TOKEN is missing") },
             ],
         },
         {
@@ -47,7 +50,7 @@ async function searchPrompt() {
     debugUsingMetadataAgent(mediaType, metadataAgent);
 }
 
-async function fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId) {
+async function fetchDetails(tmdb, tvdb, plex, mediaType, metadataAgent, mediaId) {
     try {
         if (metadataAgent === "tmdb") {
             const pathParameters = { [mediaType === "tv" ? "tv_id" : "movie_id"]: mediaId };
@@ -57,6 +60,9 @@ async function fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId) {
             const idKey = mediaType === "tv" ? "series" : "movies";
             const response = await tvdb[idKey].extended({ id: mediaId });
             console.log(response.data);
+        } else if (metadataAgent === "plex") {
+            const { response } = await getPlexMatch(mediaType, mediaId, "tmdb"); // Unnecessary to add support for TVDB here
+            console.log(response);
         }
         console.log("");
         debugUsingMetadataAgent(mediaType, metadataAgent);
@@ -68,10 +74,13 @@ async function fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId) {
 }
 
 async function debugUsingMetadataAgent(mediaType, metadataAgent) {
+    let displayAgent = metadataAgent;
+    if (metadataAgent == "plex") displayAgent = "tmdb";
+
     const answer = await inquirer.prompt({
         type: "input",
         name: "mediaId",
-        message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
+        message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(displayAgent.toUpperCase())} ID`,
         prefix: mediaType === "tv" ? "📺" : "🍿",
         suffix: ":",
         validate: (input) => {
@@ -89,8 +98,9 @@ async function debugUsingMetadataAgent(mediaType, metadataAgent) {
 
     const tmdb = TMDB_importApi();
     const tvdb = TVDB_importApi();
+    const plex = {}; // Assuming you have an importApi function for Plex as well
 
-    await fetchDetails(tmdb, tvdb, mediaType, metadataAgent, mediaId);
+    await fetchDetails(tmdb, tvdb, plex, mediaType, metadataAgent, mediaId);
 }
 
 showOpening();
