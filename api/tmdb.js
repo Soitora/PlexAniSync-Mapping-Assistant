@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import * as dotenv from "dotenv";
 import MovieDB from "node-themoviedb";
 
@@ -78,13 +79,20 @@ async function getExternalIDs(tmdbMethod, mediaType, mediaId) {
             data: { tvdb_id, imdb_id },
         } = await tmdbMethod.getExternalIDs({ pathParameters: { [`${mediaType}_id`]: mediaId } });
 
-        if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
-            const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "tmdb");
+        let plex_guid = null;
 
-            return { plex_guid, imdb_id, tvdb_id };
+        if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
+            try {
+                const plexMatchResponse = await getPlexMatch(mediaType, mediaId, "tmdb");
+                if (plexMatchResponse.response) {
+                    plex_guid = plexMatchResponse.response.guid;
+                }
+            } catch (plexError) {
+                console.log(`${chalk.redBright("Plex API issue:")} ${chalk.gray("guid")} will be missing from the results.`);
+            }
         }
 
-        return { imdb_id, tvdb_id };
+        return { plex_guid, imdb_id, tvdb_id };
     } catch (error) {
         throw error;
     }

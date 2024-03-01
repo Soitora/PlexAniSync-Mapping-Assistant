@@ -48,7 +48,14 @@ async function getMatchesFromPlex(ratingKey, metadataAgent, mediaId, type) {
         agent: plexAgents[type],
     };
 
-    return await makePlexRequest(`library/metadata/${ratingKey}/matches`, params);
+    try {
+        const response = await makePlexRequest(`library/metadata/${ratingKey}/matches`, params);
+
+        return response;
+    } catch (error) {
+        console.error("Error in getMatchesFromPlex:", error);
+        throw error;
+    }
 }
 
 export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
