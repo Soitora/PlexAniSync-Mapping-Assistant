@@ -17,24 +17,27 @@ const plexAgents = {
     movie: "tv.plex.agents.movie",
 };
 
-
-
-export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
+export async function getPlexMatch(mediaType, mediaId, metadataAgent, debug) {
     try {
         const searchResponse = await searchPlexForMedia(mediaType);
 
-        if (searchResponse.size > 0) {
+        if (searchResponse && searchResponse.size > 0) {
             const ratingKey = searchResponse.Metadata[0].ratingKey;
             const matchResponse = await getMatchesFromPlex(ratingKey, metadataAgent, mediaId, mediaType);
 
-            if (matchResponse.size > 0) {
+            if (matchResponse && matchResponse.size > 0) {
                 const response = matchResponse.SearchResult[0];
                 const { type, guid, name, year, summary } = response;
 
                 return { response, type, guid, name, year, summary };
+            } else if (matchResponse && matchResponse.size == 0) {
+                console.log("matchResponse:", matchResponse);
             }
+        } else if (searchResponse && searchResponse.size > 0) {
+            console.log("searchResponse:", searchResponse);
         }
     } catch (error) {
+        console.error("Error in getPlexMatch:", error);
         throw error;
     }
 }
@@ -50,27 +53,33 @@ async function makePlexRequest(endpoint, params) {
 
         return response.data.MediaContainer;
     } catch (error) {
+        console.error("Error in makePlexRequest:", error);
         throw error;
     }
 }
 
 async function searchPlexForMedia(type, query) {
-    const params = {
-        type: plexTypes[type],
-        query: query || DUMMY_QUERY,
-    };
+    try {
+        const params = {
+            type: plexTypes[type],
+            query: query || DUMMY_QUERY,
+        };
 
-    return await makePlexRequest("search", params);
+        return await makePlexRequest("search", params);
+    } catch (error) {
+        console.error("Error in searchPlexForMedia:", error);
+        throw error;
+    }
 }
 
 async function getMatchesFromPlex(ratingKey, metadataAgent, mediaId, type) {
-    const params = {
-        manual: 1,
-        title: `${metadataAgent}-${mediaId}`,
-        agent: plexAgents[type],
-    };
-
     try {
+        const params = {
+            manual: 1,
+            title: `${metadataAgent}-${mediaId}`,
+            agent: plexAgents[type],
+        };
+
         const response = await makePlexRequest(`library/metadata/${ratingKey}/matches`, params);
 
         return response;

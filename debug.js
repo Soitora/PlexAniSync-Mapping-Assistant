@@ -1,6 +1,10 @@
+import axios from "axios";
 import chalk from "chalk";
 import pjson from "pjson";
 import inquirer from "inquirer";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 import { importApi as TMDB_importApi } from "./api/tmdb.js";
 import { importApi as TVDB_importApi } from "./api/tvdb.js";
@@ -17,6 +21,20 @@ function showOpening() {
 const hasTokenTmdb = process.env.TMDB_APIKEY;
 const hasTokenTvdb = process.env.TVDB_APIKEY;
 const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
+
+const PLEX_HOST = "http://" + (process.env.PLEX_HOST || "127.0.0.1:32400");
+const PLEX_TOKEN = process.env.PLEX_TOKEN;
+const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
+
+const plexTypes = {
+    movie: "1",
+    tv: "2",
+};
+
+const plexAgents = {
+    tv: "tv.plex.agents.series",
+    movie: "tv.plex.agents.movie",
+};
 
 async function searchPrompt() {
     const questions = [
@@ -53,16 +71,62 @@ async function searchPrompt() {
 async function fetchDetails(tmdb, tvdb, plex, mediaType, metadataAgent, mediaId) {
     try {
         if (metadataAgent === "tmdb") {
-            const pathParameters = { [mediaType === "tv" ? "tv_id" : "movie_id"]: mediaId };
-            const response = await tmdb[mediaType].getDetails({ pathParameters });
-            console.log(response.data);
+            try {
+                const pathParameters = { [mediaType === "tv" ? "tv_id" : "movie_id"]: mediaId };
+                const response = await tmdb[mediaType].getDetails({ pathParameters });
+                console.log(response.data);
+            } catch (error) {
+                console.error(error);
+                console.log("");
+            }
         } else if (metadataAgent === "tvdb") {
-            const idKey = mediaType === "tv" ? "series" : "movies";
-            const response = await tvdb[idKey].extended({ id: mediaId });
-            console.log(response.data);
+            try {
+                const idKey = mediaType === "tv" ? "series" : "movies";
+                const response = await tvdb[idKey].extended({ id: mediaId });
+                console.log(response.data);
+            } catch (error) {
+                console.error(error);
+                console.log("");
+            }
         } else if (metadataAgent === "plex") {
-            const { response } = await getPlexMatch(mediaType, mediaId, "tmdb"); // Unnecessary to add support for TVDB here
-            console.log(response);
+            try {
+                const searchEndpoint = `search`;
+                const searchResponse = await axios.get(`${PLEX_HOST}/${searchEndpoint}`, {
+                    headers: {
+                        "X-Plex-Token": PLEX_TOKEN,
+                    },
+                    params: {
+                        type: plexTypes[mediaType],
+                        query: DUMMY_QUERY,
+                    },
+                });
+
+                if (searchResponse.data.MediaContainer.size > 0) {
+
+                    const searchResult = searchResponse.data.MediaContainer.Metadata
+                    const { ratingKey, title } = searchResult[0];
+
+                    console.log(`Using ratingKey: "${chalk.cyanBright(ratingKey)}" (from "${chalk.cyanBright(title)}")`)
+                    console.log(`Searching "${chalk.cyanBright("Plex (TMDB)")}" for "${chalk.cyanBright(mediaType)}" with ID: ${chalk.yellowBright(mediaId)}\n`)
+
+                    const matchEndpoint = `library/metadata/${ratingKey}/matches`;
+                    const matchResponse = await axios.get(`${PLEX_HOST}/${matchEndpoint}`, {
+                        headers: {
+                            "X-Plex-Token": PLEX_TOKEN,
+                        },
+                        params: {
+                            manual: 1,
+                            title: `${metadataAgent}-${mediaId}`,
+                            agent: plexAgents[mediaType],
+                        },
+                    });
+
+                    console.log(matchResponse.data);
+                }
+            } catch (error) {
+                console.error(error);
+                console.log("");
+            }
         }
         console.log("");
         debugUsingMetadataAgent(mediaType, metadataAgent);
