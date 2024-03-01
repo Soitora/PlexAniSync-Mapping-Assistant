@@ -107,8 +107,6 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
 }
 
 export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyResults, saveResults) {
-    const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
-
     if (yamlOutput) {
         if (copyResults) {
             clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
@@ -116,12 +114,12 @@ export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyRe
         }
 
         if (saveResults) {
+            const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
             const outputDir = path.dirname(outputPath);
 
-            // Use recursive option directly
             await fsPromises.mkdir(outputDir, { recursive: true });
-
             await fsPromises.appendFile(outputPath, yamlOutput + "\n");
+
             console.log(`${chalk.green("✓")} ${chalk.dim(`Results saved to ${outputPath} !`)}`);
         }
 

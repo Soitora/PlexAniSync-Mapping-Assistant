@@ -1,7 +1,9 @@
+import path from "path";
 import chalk from "chalk";
 import pjson from "pjson";
 import inquirer from "inquirer";
 import { readFile, appendFile, writeFile } from "fs/promises";
+import { promises as fsPromises } from "fs";
 
 import { mediaSearch } from "./utils/search.js";
 
@@ -51,23 +53,20 @@ async function searchPrompt() {
 async function processFile(mediaType, metadataAgent) {
     try {
         // Check if the input file exists
-        let inputData = "";
-        try {
-            inputData = await readFile(inputFilePath, "utf-8");
-        } catch (readError) {
+        const inputData = await fsPromises.readFile(inputFilePath, "utf-8").catch(async (readError) => {
             if (readError.code === "ENOENT") {
                 // If the file doesn't exist, create it
-                await writeFile(inputFilePath, "");
+                await fsPromises.writeFile(inputFilePath, "");
                 console.warn(
                     `${chalk.redBright("Warning")}: ${chalk.cyan(
                         inputFilePath
-                    )} did not exist and has been created.\n\nPlease enter a list of IDs, seperated by a newline; then try again.`
+                    )} did not exist and has been created.\n\nPlease enter a list of IDs, separated by a newline; then try again.`
                 );
-                return;
+                return ""; // Return an empty string to prevent further processing with non-existent data
             } else {
                 throw readError; // If it's a different error, propagate it
             }
-        }
+        });
 
         const mediaIdList = inputData.trim().split("\n"); // Trim to remove leading/trailing whitespace
         // Check if the file is empty
@@ -91,6 +90,9 @@ async function processFile(mediaType, metadataAgent) {
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             try {
+                const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
+                const outputDir = path.dirname(outputPath);
+
                 const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, false, false);
 
                 // Check if yamlOutput is undefined before proceeding
@@ -102,8 +104,10 @@ async function processFile(mediaType, metadataAgent) {
                 // Edit the line to append "✅ " before the processed mediaId
                 linesToProcess[i] = `✅ ${mediaId}`;
 
-                console.log(`Processing:\n${chalk.yellowBright(yamlOutput)}`);
-                await appendFile(`batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`, yamlOutput + "\n");
+                await fsPromises.mkdir(outputDir, { recursive: true });
+                await fsPromises.appendFile(outputPath, yamlOutput + "\n");
+
+                console.log(`${chalk.green("✓")} ${chalk.dim(`Processing:`)}\n${chalk.yellowBright(yamlOutput)}`);
             } catch (error) {
                 console.error(`Error processing ${mediaId}:`, error.message);
                 // If there's an error, you may want to handle it accordingly, e.g., log the error or skip the line.
