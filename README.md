@@ -65,21 +65,51 @@ Open the `.env` file in a text editor and fill in the environment variables with
 
 <div align="left">
 
-### Step 7: Run the Assistant
+### Step 7: Configuration
+
+You can create a `config/default.json` with custom settings.
+
+#### Settings:
+- `preferMetadata`
+  - Possible values: `tmdb`, `tvdb`
+- `preferMedia`
+  - Possible values: `tv`, `movie`
+- `copyResults`
+  - Possible values: `true`, `false`
+- `saveResults`
+  - Possible values: `true`, `false`
+
+#### Default config:
+```json
+{
+    "userConfig": {
+        "preferMetadata": "tmdb",
+        "preferMedia": "tv",
+        "copyResults": true,
+        "saveResults": false
+    }
+}
+```
+
+This is useful if you for example only want to use TVDB, and maybe always save results to a file as well, then you can change
+
+```json
+{
+    "userConfig": {
+        "preferMetadata": "tvdb",
+        "saveResults": true
+    }
+}
+```
+
+### Step 8: Run the Assistant
 You can now run the mapping assistant using the following command:
 
 ```bash
 npm run assistant
 ```
 
-### Step 8: Debugging (Optional)
-If you need to debug and test towards API directly, you can use the following command:
-
-```bash
-npm run debug
-```
-
-### Step 9: Auto-scraping (Optional)
+### Auto-scraping (Optional)
 If you would prefer to input a large number of IDs, and have the program output a file for you, you can do it using this script.
 
 Make sure that you fill `batch\input.txt` with a newline-seperated list of IDs.
@@ -88,7 +118,14 @@ Make sure that you fill `batch\input.txt` with a newline-seperated list of IDs.
 npm run auto
 ```
 
-### Step 10: Testing (Optional)
+### Debugging (Optional)
+If you need to debug and test towards API directly, you can use the following command:
+
+```bash
+npm run debug
+```
+
+### Testing (Optional)
 To run tests to make sure the API is spitting out the correct information, use the following command:
 
 ```bash

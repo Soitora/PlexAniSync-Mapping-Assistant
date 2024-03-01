@@ -1,8 +1,22 @@
 import chalk from "chalk";
 import pjson from "pjson";
+import config from "config";
 import inquirer from "inquirer";
 
 import { searchUsingMetadataAgent } from "./utils/search.js";
+
+// Set a fallback configuration in case the user config is not found
+config.util.setModuleDefaults("userConfig", {
+    preferMetadata: "tmdb",
+    preferMedia: "tv",
+    copyResults: true,
+    saveResults: false,
+});
+
+const userConfig = config.get("userConfig");
+
+const hasTokenTmdb = process.env.TMDB_APIKEY;
+const hasTokenTvdb = process.env.TVDB_APIKEY;
 
 function showOpening() {
     console.log("\x1Bc");
@@ -11,9 +25,6 @@ function showOpening() {
     console.log(chalk.grey(`  Made for contribution to: ${chalk.bold("https://github.com/RickDB/PlexAniSync-Custom-Mappings")}`));
     console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
 }
-
-const hasTokenTmdb = process.env.TMDB_APIKEY;
-const hasTokenTvdb = process.env.TVDB_APIKEY;
 
 async function searchPrompt() {
     const questions = [
@@ -25,6 +36,7 @@ async function searchPrompt() {
                 { name: "🎥 The Movie Database (TMDB)", value: "tmdb", disabled: hasTokenTmdb ? false : chalk.redBright("Your TMDB_APIKEY is missing") },
                 { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
             ],
+            default: userConfig.preferMetadata,
         },
         {
             type: "list",
@@ -34,18 +46,19 @@ async function searchPrompt() {
                 { name: "📺 Series", value: "tv" },
                 { name: "🍿 Movies", value: "movie" },
             ],
+            default: userConfig.preferMedia,
         },
         {
             type: "confirm",
             name: "copyResults",
             message: "Do you wish to copy the output to your clipboard?",
-            default: true,
+            default: userConfig.copyResults,
         },
         {
             type: "confirm",
             name: "saveResults",
             message: "Do you wish to save the output to a file?",
-            default: false,
+            default: userConfig.saveResults,
         },
     ];
 
