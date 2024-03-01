@@ -35,16 +35,30 @@ async function searchPrompt() {
                 { name: "🍿 Movies", value: "movie" },
             ],
         },
+        {
+            type: "confirm",
+            name: "copyResults",
+            message: "Do you wish to copy the output to your clipboard?",
+            default: true,
+        },
+        {
+            type: "confirm",
+            name: "saveResults",
+            message: "Do you wish to save the output to a file?",
+            default: false,
+        },
     ];
 
     const answers = await inquirer.prompt(questions);
 
     const metadataAgent = answers.metadataAgent;
     const mediaType = answers.mediaType;
+    const copyResults = answers.copyResults;
+    const saveResults = answers.saveResults;
 
     console.log("");
 
-    searchUsingMetadataAgent(mediaType, metadataAgent);
+    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults);
 }
 
 showOpening();

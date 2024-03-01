@@ -1,7 +1,10 @@
+import path from "path";
 import chalk from "chalk";
 import yaml from "js-yaml";
 import inquirer from "inquirer";
 import clipboardy from "clipboardy";
+import { appendFile } from "fs/promises";
+import { promises as fsPromises } from "fs";
 
 import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
@@ -26,22 +29,13 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
         });
 
         const mediaId = parseInt(answer.mediaId.trim());
-        const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, copyResults, saveResults);
+        const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId);
 
         if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
             console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
         }
 
-        if (copyResults !== false && yamlOutput !== "undefined") {
-            clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
-        }
-
-        if (saveResults && yamlOutput !== "undefined") {
-            //Nothing yet
-        }
-
-        console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard!")}\n`);
-        console.log(chalk.yellowBright(yamlOutput));
+        await outputMethods(mediaType, metadataAgent, yamlOutput, copyResults, saveResults);
     } catch (error) {
         handleSearchError(error, mediaType, metadataAgent);
     }
@@ -109,6 +103,32 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
         return { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
     } catch (error) {
         throw error;
+    }
+}
+
+export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyResults, saveResults) {
+    const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
+
+    if (yamlOutput) {
+        if (copyResults) {
+            clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
+            console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard !")}`);
+        }
+
+        if (saveResults) {
+            const outputDir = path.dirname(outputPath);
+
+            // Use recursive option directly
+            await fsPromises.mkdir(outputDir, { recursive: true });
+
+            await fsPromises.appendFile(outputPath, yamlOutput + "\n");
+            console.log(`${chalk.green("✓")} ${chalk.dim(`Results saved to ${outputPath} !`)}`);
+        }
+
+        console.log("");
+        console.log(chalk.yellowBright(yamlOutput));
+    } else {
+        console.warn(chalk.redBright("Output seems corrupted."));
     }
 }
 
