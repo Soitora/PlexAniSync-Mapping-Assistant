@@ -5,14 +5,14 @@ import inquirer from "inquirer";
 import { readFile, appendFile, writeFile } from "fs/promises";
 import { promises as fsPromises } from "fs";
 
-import { mediaSearch } from "./utils/search.js";
+import { mediaSearch } from "../utils/search.js";
 
 function showOpening() {
     console.log("\x1Bc");
     console.log(`${chalk.cyan("  PlexAniSync Mapping Assistant")} ${chalk.grey("- Auto Scraper -")} ${pjson.version} \n`);
     console.log(chalk.grey(`  Created by ${chalk.bold("@Soitora")}`));
     console.log(chalk.grey(`  Made for contribution to: ${chalk.bold("https://github.com/RickDB/PlexAniSync-Custom-Mappings")}`));
-    console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n\n`));
+    console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
     console.log(chalk.grey(`  For this tool, please make sure you got ${chalk.cyan(inputFilePath)} created and filled with IDs.\n`));
 }
 

@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import path from "path";
 import chalk from "chalk";
 import yaml from "js-yaml";
@@ -31,6 +32,7 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
         const mediaId = parseInt(answer.mediaId.trim());
         const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId);
 
+        dotenv.config();
         if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
             console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
         }

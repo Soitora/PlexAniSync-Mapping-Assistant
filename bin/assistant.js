@@ -1,9 +1,11 @@
+#! /usr/bin/env node
 import chalk from "chalk";
 import pjson from "pjson";
 import config from "config";
 import inquirer from "inquirer";
 
-import { searchUsingMetadataAgent } from "./utils/search.js";
+import { checkAndSetupConfig } from "../utils/firstRun.js";
+import { searchUsingMetadataAgent } from "../utils/search.js";
 
 // Set a fallback configuration in case the user config is not found
 config.util.setModuleDefaults("userConfig", {
@@ -15,9 +17,6 @@ config.util.setModuleDefaults("userConfig", {
 
 const userConfig = config.get("userConfig");
 
-const hasTokenTmdb = process.env.TMDB_APIKEY;
-const hasTokenTvdb = process.env.TVDB_APIKEY;
-
 function showOpening() {
     console.log("\x1Bc");
     console.log(`${chalk.cyan("  PlexAniSync Mapping Assistant")} ${pjson.version} \n`);
@@ -26,7 +25,18 @@ function showOpening() {
     console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
 }
 
+async function main() {
+    showOpening();
+
+    await checkAndSetupConfig();
+
+    searchPrompt();
+}
+
 async function searchPrompt() {
+    const hasTokenTmdb = process.env.TMDB_APIKEY;
+    const hasTokenTvdb = process.env.TVDB_APIKEY;
+
     const questions = [
         {
             type: "list",
@@ -74,5 +84,4 @@ async function searchPrompt() {
     searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults);
 }
 
-showOpening();
-searchPrompt();
+main();

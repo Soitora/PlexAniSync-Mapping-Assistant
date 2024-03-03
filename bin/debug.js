@@ -2,9 +2,9 @@ import chalk from "chalk";
 import pjson from "pjson";
 import inquirer from "inquirer";
 
-import { importApi as TMDB_importApi } from "./api/tmdb.js";
-import { importApi as TVDB_importApi } from "./api/tvdb.js";
-import { getPlexMatch } from "./api/plex.js";
+import { importApi as TMDB_importApi } from "../api/tmdb.js";
+import { importApi as TVDB_importApi } from "../api/tvdb.js";
+import { getPlexMatch } from "../api/plex.js";
 
 function showOpening() {
     console.log("\x1Bc");

@@ -1,11 +1,5 @@
-import * as dotenv from "dotenv";
+import dotenv from 'dotenv'
 import axios from "axios";
-
-dotenv.config();
-
-const PLEX_HOST = "http://" + (process.env.PLEX_HOST || "127.0.0.1:32400");
-const PLEX_TOKEN = process.env.PLEX_TOKEN;
-const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
 
 const plexTypes = {
     movie: "1",
@@ -16,8 +10,6 @@ const plexAgents = {
     tv: "tv.plex.agents.series",
     movie: "tv.plex.agents.movie",
 };
-
-
 
 export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
     try {
@@ -40,6 +32,10 @@ export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
 }
 
 async function makePlexRequest(endpoint, params) {
+    dotenv.config();
+    const PLEX_HOST = "http://" + (process.env.PLEX_HOST || "127.0.0.1:32400");
+    const PLEX_TOKEN = process.env.PLEX_TOKEN;
+
     try {
         const response = await axios.get(`${PLEX_HOST}/${endpoint}`, {
             headers: {
@@ -55,6 +51,9 @@ async function makePlexRequest(endpoint, params) {
 }
 
 async function searchPlexForMedia(type, query) {
+    dotenv.config();
+    const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
+
     const params = {
         type: plexTypes[type],
         query: query || DUMMY_QUERY,

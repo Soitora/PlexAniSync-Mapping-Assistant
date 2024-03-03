@@ -1,11 +1,11 @@
-import * as dotenv from "dotenv";
+import dotenv from 'dotenv'
 import TVDB from "tvdbapi";
 
 import { getPlexMatch } from "./plex.js";
 
-dotenv.config();
-
 export function importApi() {
+    dotenv.config();
+
     const tvdb = new TVDB({ apikey: process.env.TVDB_APIKEY });
     return tvdb;
 }
@@ -81,6 +81,7 @@ async function getRemoteIDs(remoteIds, mediaType, mediaId) {
             }
         });
 
+        dotenv.config();
         if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
             const { guid: plex_guid } = await getPlexMatch(mediaType, mediaId, "tvdb");
 

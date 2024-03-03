@@ -1,5 +1,5 @@
+import dotenv from 'dotenv'
 import chalk from "chalk";
-import * as dotenv from "dotenv";
 import MovieDB from "node-themoviedb";
 
 import { getPlexMatch } from "./plex.js";
@@ -81,6 +81,7 @@ async function getExternalIDs(tmdbMethod, mediaType, mediaId) {
 
         let plex_guid = null;
 
+        dotenv.config();
         if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
             try {
                 const plexMatchResponse = await getPlexMatch(mediaType, mediaId, "tmdb");
@@ -88,6 +89,7 @@ async function getExternalIDs(tmdbMethod, mediaType, mediaId) {
                     plex_guid = plexMatchResponse.response.guid;
                 }
             } catch (plexError) {
+                console.error(plexError)
                 console.log(`${chalk.redBright("Plex API issue:")} ${chalk.gray("guid")} will be missing from the results.`);
             }
         }
