@@ -1,6 +1,6 @@
 {
     "name": "plexanisync-mapping-assistant",
-    "version": "2.0.0-rc10",
+    "version": "2.0.0-rc11",
     "description": "PlexAniSync Mapping Assistant",
     "main": "bin/assistant.js",
     "type": "module",
