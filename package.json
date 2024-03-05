@@ -1,6 +1,6 @@
 {
     "name": "plexanisync-mapping-assistant",
-    "version": "2.0.0-rc9",
+    "version": "2.0.0-rc10",
     "description": "PlexAniSync Mapping Assistant",
     "main": "bin/assistant.js",
     "type": "module",
@@ -28,7 +28,10 @@
         "anilist",
         "node"
     ],
-    "author": "Soitora",
+    "author": {
+        "name": "Soitora",
+        "email": "simon.mattila@protonmail.com"
+    },
     "license": "MPL-2.0",
     "bugs": {
         "url": "https://github.com/Soitora/PlexAniSync-Mapping-Assistant/issues"
