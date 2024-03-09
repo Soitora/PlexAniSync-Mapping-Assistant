@@ -131,3 +131,4 @@ batch/output/movies-tvdb.en.yaml
 batch/output/movies-tmdb.en.yaml
 batch/input.txt
 config/default.json
+config/default.yaml

@@ -5,6 +5,13 @@ import inquirer from "inquirer";
 import { importApi as TMDB_importApi } from "../api/tmdb.js";
 import { importApi as TVDB_importApi } from "../api/tvdb.js";
 import { getPlexMatch } from "../api/plex.js";
+import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
+
+// Call setUserConfigDefaults if needed
+setUserConfigDefaults();
+
+// Use getUserConfig to get the user configuration
+const userConfig = getUserConfig();
 
 function showOpening() {
     console.log("\x1Bc");
@@ -29,6 +36,7 @@ async function searchPrompt() {
                 { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
                 { name: "🎥 Plex.tv (PLEX)", value: "plex", disabled: hasTokenPlex ? false : chalk.redBright("Your PLEX_HOST or PLEX_TOKEN is missing") },
             ],
+            default: userConfig.preferMetadata,
         },
         {
             type: "list",
@@ -38,6 +46,7 @@ async function searchPrompt() {
                 { name: "📺 Series", value: "tv" },
                 { name: "🍿 Movies", value: "movie" },
             ],
+            default: userConfig.preferMedia,
         },
     ];
 

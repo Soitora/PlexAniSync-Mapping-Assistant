@@ -67,7 +67,8 @@ Open the `.env` file in a text editor and fill in the environment variables with
 
 ### Step 7: Configuration
 
-You can create a `config/default.json` with custom settings.
+You can copy `config/default.yaml.example` as `config/default.yaml` to use custom settings.
+Read [here](https://github.com/node-config/node-config/wiki/Configuration-Files) for more regarding configuration files.
 
 #### Settings:
 - `preferMetadata`
@@ -78,28 +79,41 @@ You can create a `config/default.json` with custom settings.
   - Possible values: `true`, `false`
 - `saveResults`
   - Possible values: `true`, `false`
+- `inputFilePath`
+  - A valid path to a TXT input file, see the README example.
+- `outputFilePath`
+  - A valid path for the output YAML files, see the README example.
 
 #### Default config:
-```json
-{
-    "userConfig": {
-        "preferMetadata": "tmdb",
-        "preferMedia": "tv",
-        "copyResults": true,
-        "saveResults": false
-    }
-}
+```yaml
+userConfig:
+  preferMetadata: "tmdb"
+  preferMedia: "tv"
+  copyResults: "true"
+  saveResults: "false"
+  inputFilePath: "batch/input.txt"
+  outputFilePath: "batch/output/"
+
 ```
 
+#### Examples:
+
+##### Changing metadata agent
 This is useful if you for example only want to use TVDB, and maybe always save results to a file as well, then you can change
 
-```json
-{
-    "userConfig": {
-        "preferMetadata": "tvdb",
-        "saveResults": true
-    }
-}
+```yaml
+userConfig:
+  preferMetadata: "tvdb"
+  saveResults: "true"
+```
+
+##### Changing output paths
+This is useful if you for example you want the processed files to be output to a folder on your Desktop
+
+```yaml
+userConfig:
+  inputFilePath: "C:/Users/USER/Desktop/Scraper/input.txt"
+  outputFilePath: "C:/Users/USER/Desktop/Scraper/"
 ```
 
 ### Step 8: Run the Assistant

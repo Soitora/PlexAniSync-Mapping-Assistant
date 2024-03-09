@@ -1,21 +1,17 @@
 #! /usr/bin/env node
 import chalk from "chalk";
 import pjson from "pjson";
-import config from "config";
 import inquirer from "inquirer";
 
 import { checkAndSetupConfig } from "../utils/firstRun.js";
 import { searchUsingMetadataAgent } from "../utils/search.js";
+import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
 
-// Set a fallback configuration in case the user config is not found
-config.util.setModuleDefaults("userConfig", {
-    preferMetadata: "tmdb",
-    preferMedia: "tv",
-    copyResults: true,
-    saveResults: false,
-});
+// Call setUserConfigDefaults if needed
+setUserConfigDefaults();
 
-const userConfig = config.get("userConfig");
+// Use getUserConfig to get the user configuration
+const userConfig = getUserConfig();
 
 function showOpening() {
     console.log("\x1Bc");

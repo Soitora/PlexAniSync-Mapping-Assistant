@@ -4,11 +4,11 @@ import chalk from "chalk";
 import yaml from "js-yaml";
 import inquirer from "inquirer";
 import clipboardy from "clipboardy";
-import { appendFile } from "fs/promises";
 import { promises as fsPromises } from "fs";
 
 import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
+import { getUserConfig } from "./configHandler.js";
 
 export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults) {
     try {
@@ -116,7 +116,10 @@ export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyRe
         }
 
         if (saveResults) {
-            const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
+            // Use getUserConfig to get the user configuration
+            const userConfig = getUserConfig();
+
+            const outputPath = `${userConfig.outputFilePath.replace(/\/$/, '')}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
             const outputDir = path.dirname(outputPath);
 
             await fsPromises.mkdir(outputDir, { recursive: true });

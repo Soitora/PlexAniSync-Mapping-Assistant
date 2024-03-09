@@ -6,6 +6,13 @@ import { readFile, appendFile, writeFile } from "fs/promises";
 import { promises as fsPromises } from "fs";
 
 import { mediaSearch } from "../utils/search.js";
+import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
+
+// Call setUserConfigDefaults if needed
+setUserConfigDefaults();
+
+// Use getUserConfig to get the user configuration
+const userConfig = getUserConfig();
 
 function showOpening() {
     console.log("\x1Bc");
@@ -13,14 +20,13 @@ function showOpening() {
     console.log(chalk.grey(`  Created by ${chalk.bold("@Soitora")}`));
     console.log(chalk.grey(`  Made for contribution to: ${chalk.bold("https://github.com/RickDB/PlexAniSync-Custom-Mappings")}`));
     console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
-    console.log(chalk.grey(`  For this tool, please make sure you got ${chalk.cyan(inputFilePath)} created and filled with IDs.\n`));
+    console.log(chalk.grey(`  For this tool, please make sure you got ${chalk.cyan(userConfig.inputFilePath)} created and filled with IDs.\n`));
 }
 
-const inputFilePath = "batch/input.txt";
-const hasTokenTmdb = process.env.TMDB_APIKEY;
-const hasTokenTvdb = process.env.TVDB_APIKEY;
-
 async function searchPrompt() {
+    const hasTokenTmdb = process.env.TMDB_APIKEY;
+    const hasTokenTvdb = process.env.TVDB_APIKEY;
+
     const questions = [
         {
             type: "list",
@@ -30,6 +36,7 @@ async function searchPrompt() {
                 { name: "🎥 The Movie Database (TMDB)", value: "tmdb", disabled: hasTokenTmdb ? false : chalk.redBright("Your TMDB_APIKEY is missing") },
                 { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
             ],
+            default: userConfig.preferMetadata,
         },
         {
             type: "list",
@@ -39,6 +46,7 @@ async function searchPrompt() {
                 { name: "📺 Series", value: "tv" },
                 { name: "🍿 Movies", value: "movie" },
             ],
+            default: userConfig.preferMedia,
         },
     ];
 
@@ -53,13 +61,13 @@ async function searchPrompt() {
 async function processFile(mediaType, metadataAgent) {
     try {
         // Check if the input file exists
-        const inputData = await fsPromises.readFile(inputFilePath, "utf-8").catch(async (readError) => {
+        const inputData = await fsPromises.readFile(userConfig.inputFilePath, "utf-8").catch(async (readError) => {
             if (readError.code === "ENOENT") {
                 // If the file doesn't exist, create it
-                await fsPromises.writeFile(inputFilePath, "");
+                await fsPromises.writeFile(userConfig.inputFilePath, "");
                 console.warn(
                     `${chalk.redBright("Warning")}: ${chalk.cyan(
-                        inputFilePath
+                        userConfig.inputFilePath
                     )} did not exist and has been created.\n\nPlease enter a list of IDs, separated by a newline; then try again.`
                 );
                 return ""; // Return an empty string to prevent further processing with non-existent data
@@ -70,8 +78,8 @@ async function processFile(mediaType, metadataAgent) {
 
         const mediaIdList = inputData.trim().split("\n"); // Trim to remove leading/trailing whitespace
         // Check if the file is empty
-        if (mediaIdList.length <= 1) {
-            console.warn(`${chalk.redBright("Warning")}: ${chalk.cyan(inputFilePath)} is empty. Add lines to process.`);
+        if (inputData.trim() == "") {
+            console.warn(`${chalk.redBright("Warning")}: ${chalk.cyan(userConfig.inputFilePath)} is empty. Add lines to process.`);
             return;
         }
 
@@ -90,7 +98,7 @@ async function processFile(mediaType, metadataAgent) {
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             try {
-                const outputPath = `batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
+                const outputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
                 const outputDir = path.dirname(outputPath);
 
                 const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, false, false);
@@ -115,9 +123,13 @@ async function processFile(mediaType, metadataAgent) {
         }
 
         // Write the updated lines back to the input file
-        await writeFile(inputFilePath, linesToProcess.join("\n"));
+        await writeFile(userConfig.inputFilePath, linesToProcess.join("\n"));
 
-        console.log(`Processing complete.\nCheck ${chalk.cyan(`batch/output/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`)} for the result.\n`);
+        console.log(
+            `Processing complete.\nCheck ${chalk.cyan(
+                `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`
+            )} for the result.\n`
+        );
     } catch (error) {
         console.error("Error:", error.message);
         // Handle errors related to reading or writing the input file
