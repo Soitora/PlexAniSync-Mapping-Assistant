@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 import path from "path";
 import chalk from "chalk";
 import yaml from "js-yaml";
@@ -47,12 +47,11 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
 
 export async function mediaSearch(mediaType, metadataAgent, mediaId) {
     try {
-        const { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
+        const { title, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
 
         const data = [
             {
                 title,
-                ...(synonyms.length > 0 && { synonyms }),
                 seasons: Array.from({ length: mediaType === "movie" ? 1 : seasons }, (_, i) => ({
                     season: i + 1,
                     "anilist-id": 0,
@@ -76,33 +75,32 @@ function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaTyp
             indent: 2,
         });
 
+        const guid_PLEX = plex_guid ? `\n  # guid: ${plex_guid}` : "";
         const url_IMDB = imdb_id ? `\n  # imdb: https://www.imdb.com/title/${imdb_id}/` : "";
         const url_TMDB = tmdb_id ? `\n  # tmdb: https://www.themoviedb.org/${mediaType}/${tmdb_id}` : "";
         const url_TVDB = tvdb_id ? `\n  # tvdb: https://www.thetvdb.com/dereferrer/${mediaType === "tv" ? "series" : "movie"}/${tvdb_id}` : "";
-        const guid_PLEX = plex_guid ? `  # guid: ${plex_guid}\n` : "";
 
         const titleRegex = /^(\s*- title:.*)$/m;
-        const seasonsRegex = /^(\s*seasons:.*)$/m;
 
-        return yamlOutput.replace(titleRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`).replace(seasonsRegex, `${guid_PLEX}$1`);
+        return yamlOutput.replace(titleRegex, `$1${guid_PLEX}${url_IMDB}${url_TMDB}${url_TVDB}`);
     } catch (error) {
         throw error;
     }
 }
 
 async function metadataHandler(mediaType, mediaId, metadataAgent) {
-    let title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons;
+    let title, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons;
 
     try {
         if (metadataAgent == "tmdb") {
-            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, alternativeTitles: synonyms, seasons } = await TMDB_getEntryByTypeAndId(mediaType, mediaId));
+            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, seasons } = await TMDB_getEntryByTypeAndId(mediaType, mediaId));
         }
 
         if (metadataAgent == "tvdb") {
-            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, aliases: synonyms, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
+            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
         }
 
-        return { title, synonyms, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
+        return { title, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
     } catch (error) {
         throw error;
     }
@@ -119,7 +117,7 @@ export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyRe
             // Use getUserConfig to get the user configuration
             const userConfig = getUserConfig();
 
-            const outputPath = `${userConfig.outputFilePath.replace(/\/$/, '')}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
+            const outputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
             const outputDir = path.dirname(outputPath);
 
             await fsPromises.mkdir(outputDir, { recursive: true });
