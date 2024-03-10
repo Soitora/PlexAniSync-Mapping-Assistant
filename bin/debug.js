@@ -21,11 +21,11 @@ function showOpening() {
     console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
 }
 
-const hasTokenTmdb = process.env.TMDB_APIKEY;
-const hasTokenTvdb = process.env.TVDB_APIKEY;
-const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
-
 async function searchPrompt() {
+    const hasTokenTmdb = process.env.TMDB_APIKEY;
+    const hasTokenTvdb = process.env.TVDB_APIKEY;
+    const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
+
     const questions = [
         {
             type: "list",

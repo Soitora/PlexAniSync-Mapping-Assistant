@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 import axios from "axios";
 
 const plexTypes = {
@@ -65,7 +65,7 @@ async function searchPlexForMedia(type, query) {
 async function getMatchesFromPlex(ratingKey, metadataAgent, mediaId, type) {
     const params = {
         manual: 1,
-        title: `${metadataAgent}-${mediaId}`,
+        title: metadataAgent === "plex" ? mediaId : `${metadataAgent}-${mediaId}`,
         agent: plexAgents[type],
     };
 

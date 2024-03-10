@@ -32,6 +32,7 @@ async function main() {
 async function searchPrompt() {
     const hasTokenTmdb = process.env.TMDB_APIKEY;
     const hasTokenTvdb = process.env.TVDB_APIKEY;
+    const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
 
     const questions = [
         {
@@ -41,6 +42,7 @@ async function searchPrompt() {
             choices: [
                 { name: "🎥 The Movie Database (TMDB)", value: "tmdb", disabled: hasTokenTmdb ? false : chalk.redBright("Your TMDB_APIKEY is missing") },
                 { name: "🎥 TheTVDB.com (TVDB)", value: "tvdb", disabled: hasTokenTvdb ? false : chalk.redBright("Your TVDB_APIKEY is missing") },
+                //{ name: "🎥 Plex.tv (PLEX)", value: "plex", disabled: hasTokenPlex ? false : chalk.redBright("Your PLEX_HOST or PLEX_TOKEN is missing") },
             ],
             default: userConfig.preferMetadata,
         },

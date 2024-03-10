@@ -8,6 +8,7 @@ import { promises as fsPromises } from "fs";
 
 import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js";
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
+import { getPlexMatch as PLEX_getPlexMatch } from "../api/plex.js";
 import { getUserConfig } from "./configHandler.js";
 
 export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults) {
@@ -19,17 +20,36 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
             prefix: mediaType === "tv" ? "📺" : "🍿",
             suffix: ":",
             validate: (input) => {
-                const value = parseInt(input, 10);
+                if (metadataAgent === "plex") {
+                    let plexUrlRegex;
 
-                if (isNaN(value) || value <= 0) {
-                    return "Please enter a valid ID.";
+                    switch (mediaType) {
+                        case "tv":
+                            plexUrlRegex = /^plex:\/\/show\/[a-f0-9]+$/;
+                            break;
+                        case "movie":
+                            plexUrlRegex = /^plex:\/\/movie\/[a-f0-9]+$/;
+                            break;
+                    }
+
+                    if (!plexUrlRegex.test(input)) {
+                        return `Please enter a valid Plex ID in the format "plex://${mediaType === "tv" ? "show" : "movie"}/<ID>".`;
+                    }
+
+                    return true;
+                } else {
+                    const value = parseInt(input, 10);
+
+                    if (isNaN(value) || value <= 0) {
+                        return "Please enter a valid ID.";
+                    }
+
+                    return true;
                 }
-
-                return true;
             },
         });
 
-        const mediaId = parseInt(answer.mediaId.trim());
+        const mediaId = answer.mediaId.trim();
         const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId);
 
         dotenv.config();
@@ -98,6 +118,10 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
 
         if (metadataAgent == "tvdb") {
             ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, seasons } = await TVDB_getEntryByTypeAndId(mediaType, mediaId));
+        }
+
+        if (metadataAgent == "plex") {
+            ({ name: title, plex_guid, imdb_id, tmdb_id, tvdb_id, seasons } = await PLEX_getPlexMatch(mediaType, mediaId, "plex"));
         }
 
         return { title, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons };
