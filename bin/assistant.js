@@ -32,7 +32,7 @@ async function main() {
 async function searchPrompt() {
     const hasTokenTmdb = process.env.TMDB_APIKEY;
     const hasTokenTvdb = process.env.TVDB_APIKEY;
-    const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
+    //const hasTokenPlex = process.env.PLEX_HOST && process.env.PLEX_TOKEN;
 
     const questions = [
         {
@@ -65,8 +65,22 @@ async function searchPrompt() {
         {
             type: "confirm",
             name: "saveResults",
-            message: "Do you wish to save the output to a file?",
+            message: "Do you wish to save the output(s) to a file?",
             default: userConfig.saveResults,
+        },
+        {
+            type: "confirm",
+            name: "dualOutput",
+            message: "Do you wish to save outputs to both agents simulatenously?",
+            default: userConfig.dualOutput,
+            when: function (answers) {
+                if (answers.saveResults && (!hasTokenTvdb || !hasTokenTmdb)) {
+                    console.log("  Dual output is unavailable because one or both metadata agents are inactive.");
+                    return false;
+                } else {
+                    return answers.saveResults === true;
+                }
+            },
         },
     ];
 
@@ -77,9 +91,15 @@ async function searchPrompt() {
     const copyResults = answers.copyResults;
     const saveResults = answers.saveResults;
 
+    let dualOutput = false;
+
+    if (hasTokenTmdb && hasTokenTvdb) {
+        if (saveResults) dualOutput = true;
+    }
+
     console.log("");
 
-    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults);
+    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
 }
 
 main();

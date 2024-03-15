@@ -6,6 +6,7 @@ const setUserConfigDefaults = () => {
         preferMedia: "tv",
         copyResults: true,
         saveResults: false,
+        dualOutput: true,
         inputFilePath: "batch/input.txt",
         outputFilePath: "batch/output/",
     });

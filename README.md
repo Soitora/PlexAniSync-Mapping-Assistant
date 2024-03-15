@@ -73,24 +73,34 @@ Read [here](https://github.com/node-config/node-config/wiki/Configuration-Files)
 #### Settings:
 - `preferMetadata`
   - Possible values: `tmdb`, `tvdb`
+  - Type: `string`
 - `preferMedia`
   - Possible values: `tv`, `movie`
+  - Type: `string`
 - `copyResults`
   - Possible values: `true`, `false`
+  - Type: `boolean`
 - `saveResults`
   - Possible values: `true`, `false`
+  - Type: `boolean`
+- `dualOutput` (requires `saveResults` being `true` in prompt)
+  - Possible values: `true`, `false`
+  - Type: `boolean`
 - `inputFilePath`
   - A valid path to a TXT input file, see the README example.
+  - Type: `string`
 - `outputFilePath`
   - A valid path for the output YAML files, see the README example.
+  - Type: `string`
 
 #### Default config:
 ```yaml
 userConfig:
   preferMetadata: "tmdb"
   preferMedia: "tv"
-  copyResults: "true"
-  saveResults: "false"
+  copyResults: true
+  saveResults: false
+  dualOutput: true
   inputFilePath: "batch/input.txt"
   outputFilePath: "batch/output/"
 
@@ -104,7 +114,7 @@ This is useful if you for example only want to use TVDB, and maybe always save r
 ```yaml
 userConfig:
   preferMetadata: "tvdb"
-  saveResults: "true"
+  saveResults: true
 ```
 
 ##### Changing output paths

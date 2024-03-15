@@ -1,7 +1,8 @@
 userConfig:
   preferMetadata: "tmdb" # Possible values: `tmdb`, `tvdb`.
   preferMedia: "tv" # Possible values: `tv`, `movie`.
-  copyResults: "true" # Possible values: `true`, `false`.
-  saveResults: "false" # Possible values: `true`, `false`.
+  copyResults: true # Possible values: `true`, `false`.
+  saveResults: false # Possible values: `true`, `false`.
+  dualOutput: true # Possible values: `true`, `false`.
   inputFilePath: "batch/input.txt" # A valid path to a TXT input file, see the README example.
   outputFilePath: "batch/output/" # A valid path for the output YAML files, see the README example.

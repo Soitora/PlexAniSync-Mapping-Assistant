@@ -11,7 +11,7 @@ import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js"
 import { getPlexMatch as PLEX_getPlexMatch } from "../api/plex.js";
 import { getUserConfig } from "./configHandler.js";
 
-export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults) {
+export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput) {
     try {
         const answer = await inquirer.prompt({
             type: "input",
@@ -50,24 +50,33 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
         });
 
         const mediaId = answer.mediaId.trim();
-        const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId);
+        const { primaryOutput, secondaryOutput } = await mediaSearch(mediaType, metadataAgent, mediaId, saveResults, dualOutput);
 
         dotenv.config();
         if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
             console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
         }
 
-        await outputMethods(mediaType, metadataAgent, yamlOutput, copyResults, saveResults);
+        await outputMethods(mediaType, metadataAgent, primaryOutput, secondaryOutput, copyResults, saveResults, dualOutput);
     } catch (error) {
         handleSearchError(error, mediaType, metadataAgent);
     }
 
-    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults);
+    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
 }
 
-export async function mediaSearch(mediaType, metadataAgent, mediaId) {
+export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput) {
     try {
+        let primaryOutput, secondaryOutput;
+
         const { title, plex_guid, tvdb_id, tmdb_id, imdb_id, seasons } = await metadataHandler(mediaType, mediaId, metadataAgent);
+
+        const secondaryAgent = metadataAgent === "tmdb" ? "tvdb" : "tmdb";
+        const secondaryMediaId = metadataAgent === "tmdb" ? tvdb_id : tmdb_id;
+
+        let combinedTmdbId = tmdb_id;
+        let combinedImdbId = imdb_id;
+        let combinedTvdbId = tvdb_id;
 
         const data = [
             {
@@ -79,9 +88,42 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId) {
             },
         ];
 
-        const yamlOutput = formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType });
+        // Check if required ID is missing
+        if ((secondaryAgent === "tmdb" && !combinedTmdbId) || (secondaryAgent === "tvdb" && !combinedTvdbId)) {
+            console.warn(chalk.redBright(`\n❌ ${metadataAgent.toUpperCase()} didn't report an ID for ${secondaryAgent.toUpperCase()}, skipping secondary output.\n`));
+            dualOutput = false;
+        }
 
-        return yamlOutput;
+        if (dualOutput) {
+            const {
+                title: secondaryTitle,
+                tmdb_id: secondaryTmdb,
+                imdb_id: secondaryImdb,
+                tvdb_id: secondaryTvdb,
+                seasons: secondarySeasons,
+            } = await metadataHandler(mediaType, secondaryMediaId, secondaryAgent);
+
+            const secondaryData = [
+                {
+                    title: secondaryTitle,
+                    seasons: Array.from({ length: mediaType === "movie" ? 1 : secondarySeasons }, (_, i) => ({
+                        season: i + 1,
+                        "anilist-id": 0,
+                    })),
+                },
+            ];
+
+            // Combine metadata from both sources
+            combinedTmdbId = combinedTmdbId || secondaryTmdb;
+            combinedImdbId = combinedImdbId || secondaryImdb;
+            combinedTvdbId = combinedTvdbId || secondaryTvdb;
+
+            secondaryOutput = formatYamlOutput(secondaryData, { plex_guid, imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
+        }
+
+        primaryOutput = formatYamlOutput(data, { plex_guid, imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
+
+        return { primaryOutput, secondaryOutput };
     } catch (error) {
         handleSearchError(error, mediaType, metadataAgent);
     }
@@ -89,7 +131,7 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId) {
 
 function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType }) {
     try {
-        const yamlOutput = yaml.dump(data, {
+        const primaryOutput = yaml.dump(data, {
             quotingType: `"`,
             forceQuotes: true,
             indent: 2,
@@ -102,7 +144,7 @@ function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaTyp
 
         const titleRegex = /^(\s*- title:.*)$/m;
 
-        return yamlOutput.replace(titleRegex, `$1${guid_PLEX}${url_IMDB}${url_TMDB}${url_TVDB}`);
+        return primaryOutput.replace(titleRegex, `$1${guid_PLEX}${url_IMDB}${url_TMDB}${url_TVDB}`);
     } catch (error) {
         throw error;
     }
@@ -130,10 +172,10 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
     }
 }
 
-export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyResults, saveResults) {
-    if (yamlOutput) {
+export async function outputMethods(mediaType, metadataAgent, primaryOutput, secondaryOutput, copyResults, saveResults, dualOutput) {
+    if (primaryOutput) {
         if (copyResults) {
-            clipboardy.writeSync(yamlOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
+            clipboardy.writeSync(primaryOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
             console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard !")}`);
         }
 
@@ -145,13 +187,24 @@ export async function outputMethods(mediaType, metadataAgent, yamlOutput, copyRe
             const outputDir = path.dirname(outputPath);
 
             await fsPromises.mkdir(outputDir, { recursive: true });
-            await fsPromises.appendFile(outputPath, yamlOutput + "\n");
+            await fsPromises.appendFile(outputPath, primaryOutput + "\n");
 
             console.log(`${chalk.green("✓")} ${chalk.dim(`Results saved to ${outputPath} !`)}`);
+
+            if (secondaryOutput && dualOutput) {
+                const secondaryOutputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${
+                    metadataAgent === "tmdb" ? "tvdb" : "tmdb"
+                }.en.yaml`;
+
+                await fsPromises.mkdir(outputDir, { recursive: true });
+                await fsPromises.appendFile(secondaryOutputPath, secondaryOutput + "\n");
+
+                console.log(`${chalk.green("✓")} ${chalk.dim(`Results saved to ${secondaryOutputPath} !`)}`);
+            }
         }
 
         console.log("");
-        console.log(chalk.yellowBright(yamlOutput));
+        console.log(chalk.yellowBright(primaryOutput));
     } else {
         console.warn(chalk.redBright("Output seems corrupted."));
     }
