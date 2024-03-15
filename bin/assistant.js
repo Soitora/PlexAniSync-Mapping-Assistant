@@ -90,12 +90,7 @@ async function searchPrompt() {
     const mediaType = answers.mediaType;
     const copyResults = answers.copyResults;
     const saveResults = answers.saveResults;
-
-    let dualOutput = false;
-
-    if (hasTokenTmdb && hasTokenTvdb) {
-        if (saveResults) dualOutput = true;
-    }
+    const dualOutput = answers.dualOutput;
 
     console.log("");
 
