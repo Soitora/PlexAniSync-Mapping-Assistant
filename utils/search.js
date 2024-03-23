@@ -81,6 +81,7 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput)
         const data = [
             {
                 title,
+                guid: plex_guid,
                 seasons: Array.from({ length: mediaType === "movie" ? 1 : seasons }, (_, i) => ({
                     season: i + 1,
                     "anilist-id": 0,
@@ -106,6 +107,7 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput)
             const secondaryData = [
                 {
                     title: secondaryTitle,
+                    guid: plex_guid,
                     seasons: Array.from({ length: mediaType === "movie" ? 1 : secondarySeasons }, (_, i) => ({
                         season: i + 1,
                         "anilist-id": 0,
@@ -118,10 +120,10 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput)
             combinedImdbId = combinedImdbId || secondaryImdb;
             combinedTvdbId = combinedTvdbId || secondaryTvdb;
 
-            secondaryOutput = formatYamlOutput(secondaryData, { plex_guid, imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
+            secondaryOutput = formatYamlOutput(secondaryData, { imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
         }
 
-        primaryOutput = formatYamlOutput(data, { plex_guid, imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
+        primaryOutput = formatYamlOutput(data, { imdb_id: combinedImdbId, tmdb_id: combinedTmdbId, tvdb_id: combinedTvdbId, mediaType });
 
         return { primaryOutput, secondaryOutput };
     } catch (error) {
@@ -129,7 +131,7 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput)
     }
 }
 
-function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaType }) {
+function formatYamlOutput(data, { imdb_id, tmdb_id, tvdb_id, mediaType }) {
     try {
         const primaryOutput = yaml.dump(data, {
             quotingType: `"`,
@@ -137,14 +139,13 @@ function formatYamlOutput(data, { plex_guid, imdb_id, tmdb_id, tvdb_id, mediaTyp
             indent: 2,
         });
 
-        const guid_PLEX = plex_guid ? `\n  # guid: ${plex_guid}` : "";
         const url_IMDB = imdb_id ? `\n  # imdb: https://www.imdb.com/title/${imdb_id}/` : "";
         const url_TMDB = tmdb_id ? `\n  # tmdb: https://www.themoviedb.org/${mediaType}/${tmdb_id}` : "";
         const url_TVDB = tvdb_id ? `\n  # tvdb: https://www.thetvdb.com/dereferrer/${mediaType === "tv" ? "series" : "movie"}/${tvdb_id}` : "";
 
-        const titleRegex = /^(\s*- title:.*)$/m;
+        const guidRegex = /^(\s*guid:.*)$/m;
 
-        return primaryOutput.replace(titleRegex, `$1${guid_PLEX}${url_IMDB}${url_TMDB}${url_TVDB}`);
+        return primaryOutput.replace(guidRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`);
     } catch (error) {
         throw error;
     }
