@@ -7,6 +7,7 @@
 # [PlexAniSync](https://github.com/RickDB/PlexAniSync/) Mapping Assistant
 TheMovieDB/TheTVDB Mapping Assistant for [PlexAniSync](https://github.com/RickDB/PlexAniSync/), specifically, for contribution to the [custom mappings](https://github.com/RickDB/PlexAniSync-Custom-Mappings) project.
 
+Also check out [Plex GUID Grabber](https://gist.github.com/Soitora/26eebf4cf388dc496eca4b29a227973b) to grab the show GUID easily, requires something that can run userscript in your browser, i.e. **Violentmonkey** / **Tampermonkey**.
 
 <img src="https://github.com/Soitora/PlexAniSync-Mapping-Assistant/assets/10836780/8cf5acc2-fb19-483e-883e-53ceadfc7e94" alt="Assistant - Metadata selection" title="Assistant - Metadata selection" width="500"/>
 <img src="https://github.com/Soitora/PlexAniSync-Mapping-Assistant/assets/10836780/2f02f5a8-cb23-47d5-b846-c96bd6ba4a48" alt="Assistant - Results from Movie search" title="Assistant - Results from Movie search" width="500"/>
