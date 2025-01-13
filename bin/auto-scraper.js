@@ -101,10 +101,10 @@ async function processFile(mediaType, metadataAgent) {
                 const outputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent}.en.yaml`;
                 const outputDir = path.dirname(outputPath);
 
-                const yamlOutput = await mediaSearch(mediaType, metadataAgent, mediaId, false, false);
+                const { primaryOutput } = await mediaSearch(mediaType, metadataAgent, mediaId, false, false);
 
-                // Check if yamlOutput is undefined before proceeding
-                if (yamlOutput === undefined) {
+                // Check if primaryOutput is undefined before proceeding
+                if (primaryOutput === undefined) {
                     console.error(`Error processing ${mediaId}: The mediaSearch function returned undefined.`);
                     continue; // Skip to the next iteration of the loop
                 }
@@ -113,9 +113,9 @@ async function processFile(mediaType, metadataAgent) {
                 linesToProcess[i] = `✅ ${mediaId}`;
 
                 await fsPromises.mkdir(outputDir, { recursive: true });
-                await fsPromises.appendFile(outputPath, yamlOutput + "\n");
+                await fsPromises.appendFile(outputPath, primaryOutput + "\n");
 
-                console.log(`${chalk.green("✓")} ${chalk.dim(`Processing:`)}\n${chalk.yellowBright(yamlOutput)}`);
+                console.log(`${chalk.green("✓")} ${chalk.dim(`Processing:`)}\n${chalk.yellowBright(primaryOutput)}`);
             } catch (error) {
                 console.error(`Error processing ${mediaId}:`, error.message);
                 // If there's an error, you may want to handle it accordingly, e.g., log the error or skip the line.
