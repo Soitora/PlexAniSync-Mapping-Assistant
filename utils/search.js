@@ -193,9 +193,8 @@ export async function outputMethods(mediaType, metadataAgent, primaryOutput, sec
             console.log(`${chalk.green("✓")} ${chalk.dim(`Results saved to ${outputPath} !`)}`);
 
             if (secondaryOutput && dualOutput) {
-                const secondaryOutputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${
-                    metadataAgent === "tmdb" ? "tvdb" : "tmdb"
-                }.en.yaml`;
+                const secondaryOutputPath = `${userConfig.outputFilePath.replace(/\/$/, "")}/${mediaType === "tv" ? "series" : "movies"}-${metadataAgent === "tmdb" ? "tvdb" : "tmdb"
+                    }.en.yaml`;
 
                 await fsPromises.mkdir(outputDir, { recursive: true });
                 await fsPromises.appendFile(secondaryOutputPath, secondaryOutput + "\n");
