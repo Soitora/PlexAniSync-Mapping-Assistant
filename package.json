@@ -1,6 +1,6 @@
 {
     "name": "@soitora/plexanisync-mapping-assistant",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "PlexAniSync Mapping Assistant",
     "main": "bin/assistant.js",
     "type": "module",
