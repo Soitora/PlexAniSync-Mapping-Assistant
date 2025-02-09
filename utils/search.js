@@ -133,11 +133,14 @@ export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput)
 
 function formatYamlOutput(data, { imdb_id, tmdb_id, tvdb_id, mediaType }) {
     try {
-        const primaryOutput = yaml.dump(data, {
+        let yamlOutput = yaml.dump(data, {
             quotingType: `"`,
-            forceQuotes: true,
+            forceQuotes: { title: true },
             indent: 2,
         });
+
+        // Remove quotes from guid line
+        yamlOutput = yamlOutput.replace(/^(\s*guid: )"([^"]+)"$/gm, "$1$2").trim();
 
         const url_IMDB = imdb_id ? `\n  # imdb: https://www.imdb.com/title/${imdb_id}/` : "";
         const url_TMDB = tmdb_id ? `\n  # tmdb: https://www.themoviedb.org/${mediaType}/${tmdb_id}` : "";
@@ -145,7 +148,10 @@ function formatYamlOutput(data, { imdb_id, tmdb_id, tvdb_id, mediaType }) {
 
         const guidRegex = /^(\s*guid:.*)$/m;
 
-        return primaryOutput.replace(guidRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`);
+        return yamlOutput
+            .replace(guidRegex, `$1${url_IMDB}${url_TMDB}${url_TVDB}`)
+            .replace(/^/gm, "  ")
+            .replace(/^\s\s$/gm, "\n");
     } catch (error) {
         throw error;
     }
@@ -176,7 +182,7 @@ async function metadataHandler(mediaType, mediaId, metadataAgent) {
 export async function outputMethods(mediaType, metadataAgent, primaryOutput, secondaryOutput, copyResults, saveResults, dualOutput) {
     if (primaryOutput) {
         if (copyResults) {
-            clipboardy.writeSync(primaryOutput.replace(/^/gm, "  ").replace(/^\s\s$/gm, "\n"));
+            clipboardy.writeSync(primaryOutput);
             console.log(`${chalk.green("✓")} ${chalk.dim("Results copied to clipboard !")}`);
         }
 
