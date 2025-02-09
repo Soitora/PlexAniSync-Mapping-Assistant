@@ -1,0 +1,46 @@
+name: Create Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+jobs:
+    create-release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Generate Changelog
+              id: changelog
+              run: |
+                  # Get the current tag
+                  CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+                  # Get the previous tag
+                  PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+
+                  # If there's a previous tag, generate changelog from it to current tag
+                  # Otherwise, get all commits up to current tag
+                  if [ -n "$PREVIOUS_TAG" ]; then
+                    CHANGELOG="Changes since ${PREVIOUS_TAG}:$(git log --pretty=format:'%n- %s (%h)' ${PREVIOUS_TAG}..${CURRENT_TAG})"
+                  else
+                    CHANGELOG="Initial release. Changes:$(git log --pretty=format:'%n- %s (%h)' ${CURRENT_TAG})"
+                  fi
+
+                  echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+                  echo "$CHANGELOG" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+
+            - name: Create Release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release create ${{ github.ref_name }} \
+                    --title "${{ github.ref_name }}" \
+                    --notes "${{ env.CHANGELOG }}"
