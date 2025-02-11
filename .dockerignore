@@ -1,0 +1,6 @@
+.example
+.github
+docker
+renovate.json
+test
+config/**/*
