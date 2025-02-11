@@ -1,7 +1,7 @@
 services:
   plexanisync-mapping-assistant:
     container_name: plexanisync-mapping-assistant
-    image: ghcr.io/Soitora/plexanisync-mapping-assistant:latest
+    image: ghcr.io/soitora/plexanisync-mapping-assistant:latest
     stdin_open: true
     tty: true
     volumes:
