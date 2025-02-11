@@ -1,0 +1,60 @@
+{
+    "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json",
+    "name": "plexanisync-mapping-assistant devContainer",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
+            "plugins": "git gpg-agent node npm zsh-autosuggestions zsh-syntax-highlighting",
+            "omzPlugins": "https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/zsh-users/zsh-autosuggestions"
+        },
+        "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "containerEnv": {
+        "GH_TOKEN": "${localEnv:GH_TOKEN}"
+    },
+    "mounts": [],
+    "postCreateCommand": "zsh .devcontainer/postCreateCommand.sh",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.tabSize": 2,
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/bin/zsh"
+                    }
+                },
+                "files": {
+                    "eol": "\n",
+                    "trimTrailingWhitespace": true,
+                    "trimTrailingWhitespaceInRegexAndStrings": true,
+                    "insertFinalNewline": true
+                },
+                "git": {
+                    "autofetch": true
+                },
+                "gitlens": {
+                    "plusFeatures.enabled": "false",
+                    "showWelcomeOnInstall": "false",
+                    "showWhatsNewAfterUpgrades": "false"
+                }
+            },
+            "extensions": [
+                "christian-kohler.path-intellisense",
+                "eamodio.gitlens",
+                "elagil.pre-commit-helper",
+                "mikestead.dotenv",
+                "mutantdino.resourcemonitor",
+                "oderwat.indent-rainbow",
+                "redhat.vscode-yaml",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "yzhang.markdown-all-in-one",
+                "EditorConfig.EditorConfig"
+            ]
+        }
+    }
+}
