@@ -14,5 +14,6 @@ RUN apt-get -y -qq install \
     fzf \
     jq \
     yq \
+    xsel \
     zsh
 

@@ -1,4 +1,11 @@
-FROM node:22
+FROM node:22-bookworm
+
+# update base os
+RUN apt-get update -y -qq && \
+  apt-get dist-upgrade -y -qq && \
+  apt-get autoremove -y -qq
+
+RUN apt-get install xsel
 
 # Create the app user and group
 RUN groupadd -f app && \
