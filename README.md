@@ -18,6 +18,10 @@ Also check out [Plex GUID Grabber](https://github.com/Soitora/Plex-GUID-Grabber/
 [![RickDB/PlexAniSync-Custom-Mappings - GitHub](https://github-readme-stats.vercel.app/api/pin/?username=RickDB&repo=PlexAniSync-Custom-Mappings&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true)](https://github.com/RickDB/PlexAniSync-Custom-Mappings/)
 [![Soitora/Plex-GUID-Grabber - GitHub](https://github-readme-stats.vercel.app/api/pin/?username=Soitora&repo=Plex-GUID-Grabber&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true)](https://github.com/Soitora/Plex-GUID-Grabber/)
 
+
+</div>
+<div align="left">
+
 ## Quick Start
 
 ### docker
@@ -26,12 +30,11 @@ Also check out [Plex GUID Grabber](https://github.com/Soitora/Plex-GUID-Grabber/
 2) Update `default.yaml` as needed.
 3) Copy/Rename [.env.example](docker/.env.example) to `.env`
 4) Update `.env` as needed.
-5) Bring up app using provided [docker-compose.yml](docker/docker-compose.yml)
+5) Use provided [docker-compose.yml](docker/docker-compose.yml)
+6) Start app with `docker compose run plexanisync-mapping-assistant`
+   * **NOTE: If you bring the container up with `docker compose up` you will be unable to interact with the terminal app**
 
 ## Guide
-
-</div>
-<div align="left">
 
 ### Step 1: Prerequisites
 Make sure you have `Node.js` and `npm` installed on your machine.

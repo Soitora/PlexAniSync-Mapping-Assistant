@@ -2,7 +2,8 @@ services:
   plexanisync-mapping-assistant:
     container_name: plexanisync-mapping-assistant
     image: ghcr.io/hollanbm/plexanisync-mapping-assistant:latest
-    restart: unless-stopped
-    env_file: .env
+    stdin_open: true
+    tty: true
     volumes:
-      - ./default.yaml:/home/app/config/default.yaml:ro
+      - ./.env:/home/app/.env
+      - ./default.yaml:/home/app/config/default.yaml

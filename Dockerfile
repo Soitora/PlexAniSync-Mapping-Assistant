@@ -1,13 +1,15 @@
 FROM node:22
 
-# Create the user and group for app to run as
-ARG USER=app
-RUN groupadd -f ${USER} && \
-    useradd -g ${USER} -m ${USER} -d /home/${USER}
+# Create the app user and group
+RUN groupadd -f app && \
+    useradd -g app -m app -d /home/app
+USER app
+WORKDIR /home/app
 
-USER ${USER}
-WORKDIR /home/${USER}
-ADD --chown=${USER}:${USER} ./ /home/${USER}/
+# copy app into container
+ADD --chown=app:app ./ /home/app/
+
+# install dependencies
 RUN npm install
 
-ENTRYPOINT [ "npm", "run", "assistant"]
+ENTRYPOINT ["npm", "run", "assistant"]
