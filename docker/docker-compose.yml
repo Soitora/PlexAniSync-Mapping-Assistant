@@ -1,0 +1,9 @@
+services:
+  plexanisync-mapping-assistant:
+    container_name: plexanisync-mapping-assistant
+    image: ghcr.io/soitora/plexanisync-mapping-assistant:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./.env:/home/app/.env
+      - ./default.yaml:/home/app/config/default.yaml
