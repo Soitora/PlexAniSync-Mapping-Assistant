@@ -5,7 +5,7 @@
         "dockerfile": "Dockerfile"
     },
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:4": {},
         "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
             "plugins": "git gpg-agent node npm zsh-autosuggestions zsh-syntax-highlighting",
             "omzPlugins": "https://github.com/zsh-users/zsh-syntax-highlighting https://github.com/zsh-users/zsh-autosuggestions"

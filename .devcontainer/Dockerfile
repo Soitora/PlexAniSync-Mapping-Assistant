@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:22-bookworm
+FROM mcr.microsoft.com/devcontainers/javascript-node:26-bookworm
 
 USER root
 
@@ -16,4 +16,3 @@ RUN apt-get -y -qq install \
     yq \
     xsel \
     zsh
-
