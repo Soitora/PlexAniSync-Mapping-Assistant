@@ -39,7 +39,7 @@
     "homepage": "https://github.com/Soitora/PlexAniSync-Mapping-Assistant#readme",
     "dependencies": {
         "axios": "^1.20.0",
-        "chai": "^5.1.2",
+        "chai": "^6.0.0",
         "chalk": "^6.0.0",
         "clipboardy": "^5.3.2",
         "config": "^5.0.1",
