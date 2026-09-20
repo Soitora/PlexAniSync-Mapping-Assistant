@@ -52,7 +52,7 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
         const mediaId = answer.mediaId.trim();
         const { primaryOutput, secondaryOutput } = await mediaSearch(mediaType, metadataAgent, mediaId, saveResults, dualOutput);
 
-        dotenv.config();
+        dotenv.config({ quiet: true });
         if (!process.env.PLEX_HOST || !process.env.PLEX_TOKEN) {
             console.log(`Your ${chalk.red("PLEX_HOST")} or ${chalk.red("PLEX_TOKEN")} seems to be missing, ${chalk.blue("guid")} will be missing from the results.`);
         }

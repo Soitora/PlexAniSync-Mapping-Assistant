@@ -32,7 +32,7 @@ export async function getPlexMatch(mediaType, mediaId, metadataAgent) {
 }
 
 async function makePlexRequest(endpoint, params) {
-    dotenv.config();
+    dotenv.config({ quiet: true });
     const PLEX_HOST = "http://" + (process.env.PLEX_HOST || "127.0.0.1:32400");
     const PLEX_TOKEN = process.env.PLEX_TOKEN;
 
@@ -51,7 +51,7 @@ async function makePlexRequest(endpoint, params) {
 }
 
 async function searchPlexForMedia(type, query) {
-    dotenv.config();
+    dotenv.config({ quiet: true });
     const DUMMY_QUERY = process.env.DUMMY_QUERY || "A";
 
     const params = {

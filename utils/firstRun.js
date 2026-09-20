@@ -22,7 +22,7 @@ export async function checkAndSetupConfig() {
                 .catch(() => false)
         ) {
             // Load the environment variables from the .env file
-            dotenv.config({ path: configFilePath });
+            dotenv.config({ path: configFilePath, quiet: true });
 
             return false; // Configuration setup was skipped
         }
@@ -108,7 +108,7 @@ export async function checkAndSetupConfig() {
         console.log(`\n${chalk.green("✓")} ${chalk.greenBright(`Configuration stored to '${configFilePath}'\n`)}`);
 
         // Load the environment variables from the updated .env file
-        dotenv.config({ path: configFilePath });
+        dotenv.config({ path: configFilePath, quiet: true });
 
         return true; // Configuration setup was performed
     } catch (error) {

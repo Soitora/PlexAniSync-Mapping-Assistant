@@ -4,7 +4,7 @@ import MovieDB from "node-themoviedb";
 
 import { getPlexMatch } from "./plex.js";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export function importApi() {
     const tmdb = new MovieDB(process.env.TMDB_APIKEY);
@@ -79,7 +79,7 @@ async function getExternalIDs(tmdbMethod, mediaType, mediaId) {
 
         let plex_guid = null;
 
-        dotenv.config();
+        dotenv.config({ quiet: true });
         if (process.env.PLEX_HOST && process.env.PLEX_TOKEN) {
             try {
                 const plexMatchResponse = await getPlexMatch(mediaType, mediaId, "tmdb");
