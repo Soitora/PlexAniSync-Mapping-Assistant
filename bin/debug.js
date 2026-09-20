@@ -6,6 +6,9 @@ import { importApi as TVDB_importApi } from "../api/tvdb.js";
 import { getPlexMatch } from "../api/plex.js";
 import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
 import { packageVersion } from "../utils/packageMetadata.js";
+import { configureInteractiveTerminal } from "../utils/terminal.js";
+
+configureInteractiveTerminal();
 
 // Call setUserConfigDefaults if needed
 setUserConfigDefaults();

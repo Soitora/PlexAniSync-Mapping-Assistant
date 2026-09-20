@@ -7,6 +7,9 @@ import { promises as fsPromises } from "fs";
 import { mediaSearch } from "../utils/search.js";
 import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
 import { packageVersion } from "../utils/packageMetadata.js";
+import { configureInteractiveTerminal } from "../utils/terminal.js";
+
+configureInteractiveTerminal();
 
 // Call setUserConfigDefaults if needed
 setUserConfigDefaults();

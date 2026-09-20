@@ -6,6 +6,10 @@ import { checkAndSetupConfig } from "../utils/firstRun.js";
 import { searchUsingMetadataAgent } from "../utils/search.js";
 import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
 import { packageVersion } from "../utils/packageMetadata.js";
+import { configureInteractiveTerminal } from "../utils/terminal.js";
+import { promptTheme } from "../utils/promptTheme.js";
+
+configureInteractiveTerminal();
 
 // Call setUserConfigDefaults if needed
 setUserConfigDefaults();
@@ -37,6 +41,7 @@ async function searchPrompt() {
     const questions = [
         {
             type: "select",
+            theme: promptTheme,
             name: "metadataAgent",
             message: "Select the metadata agent you want to use:",
             choices: [
@@ -48,6 +53,7 @@ async function searchPrompt() {
         },
         {
             type: "select",
+            theme: promptTheme,
             name: "mediaType",
             message: "Select the type of media you want to use:",
             choices: [
@@ -58,18 +64,21 @@ async function searchPrompt() {
         },
         {
             type: "confirm",
+            theme: promptTheme,
             name: "copyResults",
             message: "Do you wish to copy the output to your clipboard?",
             default: userConfig.copyResults,
         },
         {
             type: "confirm",
+            theme: promptTheme,
             name: "saveResults",
             message: "Do you wish to save the output(s) to a file?",
             default: userConfig.saveResults,
         },
         {
             type: "confirm",
+            theme: promptTheme,
             name: "dualOutput",
             message: "Do you wish to save outputs to both agents simulatenously?",
             default: userConfig.dualOutput,

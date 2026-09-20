@@ -10,11 +10,13 @@ import { getEntryByTypeAndId as TMDB_getEntryByTypeAndId } from "../api/tmdb.js"
 import { getEntryByTypeAndId as TVDB_getEntryByTypeAndId } from "../api/tvdb.js";
 import { getPlexMatch as PLEX_getPlexMatch } from "../api/plex.js";
 import { getUserConfig } from "./configHandler.js";
+import { promptTheme } from "./promptTheme.js";
 
 export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput) {
     try {
         const answer = await inquirer.prompt({
             type: "input",
+            theme: promptTheme,
             name: "mediaId",
             message: `Search for ${chalk.cyan(mediaType === "tv" ? "series" : "movies")} using a ${chalk.cyan(metadataAgent.toUpperCase())} ID`,
             prefix: mediaType === "tv" ? "📺" : "🍿",
