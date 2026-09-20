@@ -26,7 +26,7 @@ async function main() {
 
     await checkAndSetupConfig();
 
-    searchPrompt();
+    await searchPrompt();
 }
 
 async function searchPrompt() {
@@ -94,7 +94,12 @@ async function searchPrompt() {
 
     console.log("");
 
-    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
+    await searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
 }
 
-main();
+main().catch((error) => {
+    if (error.name !== "ExitPromptError") {
+        console.error(error);
+        process.exitCode = 1;
+    }
+});

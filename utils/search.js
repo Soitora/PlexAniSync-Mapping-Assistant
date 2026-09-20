@@ -59,10 +59,14 @@ export async function searchUsingMetadataAgent(mediaType, metadataAgent, copyRes
 
         await outputMethods(mediaType, metadataAgent, primaryOutput, secondaryOutput, copyResults, saveResults, dualOutput);
     } catch (error) {
+        if (error.name === "ExitPromptError") {
+            return;
+        }
+
         handleSearchError(error, mediaType, metadataAgent);
     }
 
-    searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
+    return searchUsingMetadataAgent(mediaType, metadataAgent, copyResults, saveResults, dualOutput);
 }
 
 export async function mediaSearch(mediaType, metadataAgent, mediaId, dualOutput) {
