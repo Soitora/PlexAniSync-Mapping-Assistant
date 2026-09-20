@@ -1,11 +1,11 @@
 #! /usr/bin/env node
 import chalk from "chalk";
-import pjson from "pjson";
 import inquirer from "inquirer";
 
 import { checkAndSetupConfig } from "../utils/firstRun.js";
 import { searchUsingMetadataAgent } from "../utils/search.js";
 import { setUserConfigDefaults, getUserConfig } from "../utils/configHandler.js";
+import { packageVersion } from "../utils/packageMetadata.js";
 
 // Call setUserConfigDefaults if needed
 setUserConfigDefaults();
@@ -15,7 +15,7 @@ const userConfig = getUserConfig();
 
 function showOpening() {
     console.log("\x1Bc");
-    console.log(`${chalk.cyan("  PlexAniSync Mapping Assistant")} ${pjson.version} \n`);
+    console.log(`${chalk.cyan("  PlexAniSync Mapping Assistant")} ${packageVersion} \n`);
     console.log(chalk.grey(`  Created by ${chalk.bold("@Soitora")}`));
     console.log(chalk.grey(`  Made for contribution to: ${chalk.bold("https://github.com/RickDB/PlexAniSync-Custom-Mappings")}`));
     console.log(chalk.grey(`  Join the community here:  ${chalk.bold("https://discord.gg/a9cu5t5fKc")}\n`));
@@ -36,7 +36,7 @@ async function searchPrompt() {
 
     const questions = [
         {
-            type: "list",
+            type: "select",
             name: "metadataAgent",
             message: "Select the metadata agent you want to use:",
             choices: [
@@ -47,7 +47,7 @@ async function searchPrompt() {
             default: userConfig.preferMetadata,
         },
         {
-            type: "list",
+            type: "select",
             name: "mediaType",
             message: "Select the type of media you want to use:",
             choices: [
